@@ -92,15 +92,15 @@ Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6
 
     1. html文档head标签中, 具有name="title"属性的meta标签信息
 
-    ![](doc\meta.png)
+    ![](doc/meta.png)
         
     2. 页面左侧的商品基本信息
 
-    ![](doc\parseB1.png)
+    ![](doc/parseB1.png)
 
     3. 页面底部的Other formats列表
 
-    ![](doc\parseB2.png)
+    ![](doc/parseB2.png)
 
     - 示例页面解析后的结果如下
 
@@ -124,17 +124,17 @@ Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6
 
     1. html文档head标签中, 具有name="title"属性的meta标签信息
 
-    ![](doc\meta.png)
+    ![](doc/meta.png)
 
     2. 页面顶部的Other formats列表
 
     3. 页面顶部的Additional options列表
 
-    ![](doc\parseA1.png)
+    ![](doc/parseA1.png)
 
     4. 页面底部的Product details
 
-    ![](doc\parseA2.png)
+    ![](doc/parseA2.png)
 
     - 示例页面解析后的结果如下
 
@@ -160,7 +160,7 @@ Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6
 
 - 最终爬取速度约 120 item/min, 在爬取过程中发现有 1,391 个页面已经失效, 成功爬取到 251,668 条商品数据
 
-![](doc\data.png)
+![](doc/data.png)
 
 
 
@@ -264,15 +264,15 @@ print(f"Drop normal video: {dropped2}")
 
 - 节点列表
 
-![](doc\nodes.png)
+![](doc/nodes.png)
 
 - otherFormat关系列表
 
-![](doc\r1.png)
+![](doc/r1.png)
 
 - additionalOptions关系列表
 
-![](doc\r2.png)
+![](doc/r2.png)
 
 ### 4. 节点, 关系列表 -> 图数据库
 
@@ -299,7 +299,7 @@ MERGE (from)-[:additionalOptions]-(to)
 
 - 导入成功后, 即可在Neo4j Browser中看到数据库中存储的节点和节点之间的关系
 
-![](doc\graph.png)
+![](doc/graph.png)
 
 - 最后调用Neo4j的图算法库
 
@@ -317,7 +317,7 @@ CALL gds.wcc.stats('mygraph')
 YIELD componentCount
 ```
 
-![](doc\wcc.png)
+![](doc/wcc.png)
 
 - 即可得到最终结果, 说明在25万条商品信息中一共出现了 117,514 部不同的电影
 
