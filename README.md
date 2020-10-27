@@ -1,14 +1,113 @@
-# ETL 练习报告
+<div>
+<img src="doc/logo_small.png" style="float: left;" height="30px" />
+<div style="float: right; color:rgb(0,112,172);">
+    <div style="text-align: right; font-family: LM Roman 10;"><i>October 25, 2020</i></div>
+    <div style="text-align: right; font-family: FandolSong;">版本: <span style="font-family: LM Roman 10;">1.0</span></div>
+</div>
+</div>
 
-> 谭梓煊 (1853434) 刘文朔 (1851008)
-
-> [Mail](2277861660@qq.com)
-
-> 2020.10.25
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+<div align='center' style="font-size: 14pt; font-family: FandolHei-Bold; margin-top: 5px; margin-bottom: 15px;"><b>数据仓库课程报告</b></div>
+
+<h1 align='center' style="padding: 20px 0; border-top: solid 1.1px rgb(0,112,172); border-bottom: solid 1.1px rgb(0,112,172); color:rgb(0,112,172); font-family: FandolHei; font-size: 25pt; ">ETL练习——获取电影数量</h1>
+
+<div align="center" style="font-size:12pt; font-family: FandolKai;">指导教师: <b style="font-family:FandolSong-Bold, FandolSong;">朱宏明</b></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div style="width: 300px; margin: 0 auto; text-align: center; border: 0 !important; font-size: 12pt;">
+        <div><span style="font-family:STSong;"><b>谭梓煊</b></span><span style="font-family:LM Roman 12;"> <i>(1853434)</i></span></div>
+        <div><span style="font-family:STSong;"><b>刘文朔</b></span><span style="font-family:LM Roman 12;"> <i>(1851008)</i></span></div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div style="text-align: center; font-family: LM Roman 12; font-size: 14pt; padding-bottom: 5px;">Data Warehouse</div>
+<div style="text-align: center; color: rgb(0,112,172); font-family: LM Roman 12; font-size: 12pt;">Tongji University</div>
+<div style="text-align: center; color: rgb(0,112,172);font-family: LM Roman Caps 10; font-size: 12pt;">School of Software Engineering</div>
+
+
+
+
+
+
+
+<h2>目录</h2>
 
 [TOC]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## 一、项目概述
 
@@ -158,7 +257,7 @@ this DVD !!
     ```python
     title = response.xpath('//meta[@name="title"]/@content').extract()[0]
     ```
-        
+    
     2. 页面左侧的商品基本信息
 
     ![](doc/parseB1.png)
@@ -288,13 +387,16 @@ this DVD !!
 
 ### 1. 开源评论数据集 -> 商品asin码列表
 
-- 方案: 逐行遍历movies.txt文件, 寻找开头为"product/productId:"的行, 提取后面的asin逐行写入到另一个文件中
+#### 方案
 
-- 注意事项: 
-    - movies.txt文件编码为"iso-8859-1", 如果编码选择不正确会导致数据错乱
-    - 使用集合数据结构存储已写入的asin防止重复
+- 逐行遍历movies.txt文件, 寻找开头为"product/productId:"的行, 提取后面的asin逐行写入到另一个文件中
 
-- 代码实现:
+#### 注意事项
+
+- movies.txt文件编码为"iso-8859-1", 如果编码选择不正确会导致数据错乱
+- 使用集合数据结构存储已写入的asin防止重复
+
+#### 代码实现
 
 ```python
 asinSet = set()
@@ -311,7 +413,8 @@ with open("movies.txt", encoding="iso-8859-1") as movies, open('asin.txt', 'w', 
 print(f"Done. {len(asinSet)} asin in total")
 ```
 
-- 输出:
+#### 输出
+
 ```
 B003AI2VGA
 B00006HAXW
@@ -331,53 +434,37 @@ B0078V2LCY
 - 我们仔细分析了亚马逊平台上的电影商品信息, 找到了一些它们不同于非电影商品的共同点, 以此为判断依据来分析一个商品是否是电影
 
 1. 电影商品以及类电影商品(如纪录片)通常含有Director属性, 而多集电视剧一类的商品通常采用多导演拍摄, 因此信息中通常没有Director属性. 因此可以观察商品信息是否包含有Director属性, 如果出现则认为是电影
+
 2. 商品信息中是否出现视频长度, 如果出现而且时长位于一定范围内则认为是电影
+
 3. 商品信息中是否出现MPAA分级, 若有此属性且属性满足条件(不为NotRated一类的无意义分级), 则认为该商品是电影
+
 4. 部分非电影商品的标题具有明显特征, 如[VHS]为数字电视广播节目的录像, Analysis of ... technique为技术教程. 如标题为此类格式可以判断为非电影
+
 5. 商品的Type/Genres属性表明了该出版物的体裁类型, 而部分属性很明显不是电影所有的, 比如VHS、PBS(公共电视台节目)、fitness、TV Talk Shows、News一类. 若出现这些类型则可以直接判断为非电影
 
-- 否则认为商品不是电影
+6. 否则认为商品不是电影
 
 - 实际上使用简单的if-else判断法是称不上准确的, 以上的任何一条判断法则都存在着例外, 符合的不一定是电影, 不符合的不一定不是电影. 比如有些商品是时长超长的电影合集、部分带有TV类型的商品其实也是电影. **以上判断法则只能说是一种倾向, 即符合标准的我们相信它大概率确实是一部电影**
 
 #### 多次筛选方法
+
 - 可以使用以下方法来改进判断标准
+
 1. 可以引入权重机制代替简单的if-else法. 比如若一个商品的Type为Reality TV, 则其的分数减少, 即减少其是电影的概率, 但不直接判断其不是电影. 最终根据商品的评分进行最终判断, 位于分界线附近的可以人工判断
+
 2. 在检测的过程中, 若发现某些无关属性(如出版商、导演等)与商品的类型呈现强相关性, 则将其也加入权重判断中去. 比如若发现某公司出版商品全部都是电影, 则可以认为该公司比较偏爱于出版电影类商品, 若再发现该公司的商品则可以提升商品的电影权重
+
 3. 相关属性也是同理, 若发现有商品的分类与其基于属性的判断冲突, 则认为该属性与商品的类型的相关性并没有那么强, 可以削弱其权重
+
 4. 判断完成后随机抽取几部人工判断, 根据2、3的法则进行权重的加减
 5. 不断重复2~4的流程, 倾向特别大的可以直接判断, 根据判断结果改变权重, 依次循环, 直至剩余商品少到可以人工判断为止
+
 6. 如有条件可以构建神经网络模型, 使用Classifier分类器来进行判断
 
-#### 代码实现
+经过筛选, 最终得到了 201,368 条判断为电影的数据
 
-```python
-import json
-
-dropped1 = 0
-dropped2 = 0
-with open('data_fixed.jl', encoding='utf-8') as f, open('movie.jl', 'w', encoding='utf-8') as fo:
-    for line in f:
-        jl = json.loads(line)
-        if 'primeMeta' in jl:
-            if 'Directors' not in jl['primeMeta']:
-                dropped1 += 1
-                continue
-        else:
-            if 'productDetail' in jl and ('Director' in jl['productDetail'] or 'Run time' in jl['productDetail'] or 'MPAA rating' in jl['productDetail'] and 's_medNotRated' not in jl['productDetail']['MPAA rating']):
-                pass
-            else:
-                dropped2 += 1
-                continue
-        fo.write(line)
-
-print(f"Drop prime video: {dropped1}")
-print(f"Drop normal video: {dropped2}")
-```
-
-- 经过筛选, 最终得到了 201,368 条判断为电影的数据
-
-### 3. 电影数据 -> 电影节点列表, 电影之间的相同关系列表
+### 3. 电影数据 -> 电影节点, 关系列表
 
 - 在数据清洗之后, 我们得到了判断为电影的商品数据, 接下来要从这些数据中提取出电影节点和电影之间的关系.
 
