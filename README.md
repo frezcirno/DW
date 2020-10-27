@@ -70,19 +70,78 @@ this DVD !!
 
 - 本次项目使用开源的 [ProxyBroker](https://github.com/constverum/ProxyBroker) 作为ip代理池
 
+    - ProxyBroker可以自动收集网络上可用的ip代理, 并启动一个本地的代理服务器, 将请求转发至这些ip代理处
+
+    ![](doc/proxybroker.gif)
+
 - 使用 [fake-useragent](https://github.com/hellysmile/fake-useragent) 随机生成浏览器UserAgent
+
+    - 将fake-useragent以中间件的形式集成到Scrapy框架中
+
+    ```python
+    # @spider/amaspd/middlewares/UserAgentMiddleware.py
+
+    from fake_useragent import UserAgent
+
+    class UserAgentMiddleware:
+
+        @classmethod
+        def from_crawler(cls, crawler):
+            # This method is used by Scrapy to create your spiders.
+            return cls(crawler.settings)
+
+        def __init__(self, settings):
+            self.ua = UserAgent()
+
+        def process_request(self, request, spider):
+            request.headers['User-Agent'] = self.ua.random
+    ```
+
+    - 然后在Scrapy的settings.py中添加中间件
+
+    ```python
+    DOWNLOADER_MIDDLEWARES = {
+        'amaspd.middlewares.UserAgentMiddleware.UserAgentMiddleware': 502,
+    }
+    ```
 
 - 在请求头中添加一些header, 使得请求更像是浏览器发出的
 
-```
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6
-```
+    ```python
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6', 
+    }
+
+    # @settings.py
+    DEFAULT_REQUEST_HEADERS = {
+        'Upgrade-Insecure-Requests': 1,
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache',
+    }
+    ```
 
 - 禁用Cookie
 
+    ```python
+    COOKIES_ENABLED = False
+    ```
+
+- 忽略Robot.txt
+
+    ```python
+    ROBOTSTXT_OBEY = False
+    ```
+
 - 控制发送请求的速度和频率, 设置随机等待时间
+
+    ```python
+    CONCURRENT_REQUESTS = 16
+    DOWNLOAD_DELAY = 0.1
+    CONCURRENT_REQUESTS_PER_DOMAIN = 16
+    CONCURRENT_REQUESTS_PER_IP = 16
+    ```
 
 #### 页面解析
 
@@ -93,14 +152,41 @@ Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6
     1. html文档head标签中, 具有name="title"属性的meta标签信息
 
     ![](doc/meta.png)
+
+    - 对应解析代码
+
+    ```python
+    title = response.xpath('//meta[@name="title"]/@content').extract()[0]
+    ```
         
     2. 页面左侧的商品基本信息
 
     ![](doc/parseB1.png)
 
+    - 对应解析代码
+
+    ```python
+    primeMeta = {}
+    dts = response.xpath('//div[@id="meta-info"]//dl/dt')
+    for dt in dts:
+        key = ''.join(dt.xpath('.//text()').extract())
+        value = ''.join(dt.xpath('../dd//text()').extract())
+        primeMeta[key] = value
+    ```
+
     3. 页面底部的Other formats列表
 
     ![](doc/parseB2.png)
+
+    - 对应解析代码
+
+    ```python
+    otherFormat = []
+    otherFormatHrefs = response.xpath('//div[@data-automation-id="other-formats"]//a/@href').extract()
+    for otherFormatHref in otherFormatHrefs:
+        asin = re.search('/dp/(\w+)/', otherFormatHref).group(1)
+        otherFormat.append(asin)
+    ```
 
     - 示例页面解析后的结果如下
 
@@ -126,15 +212,49 @@ Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6
 
     ![](doc/meta.png)
 
+    - 对应解析代码
+
+    ```python
+    title = response.xpath('//meta[@name="title"]/@content').extract()[0]
+    ```
+
     2. 页面顶部的Other formats列表
 
     3. 页面顶部的Additional options列表
 
     ![](doc/parseA1.png)
 
+    - 对应解析代码
+
+    ```python
+    otherFormat = []
+    otherFormatHrefs = response.xpath("//li[contains(@class, 'swatchElement')]//a[@href!='javascript:void(0)']/@href").extract()
+    for otherFormatHref in otherFormatHrefs:
+        asin = re.search('/dp/(\w+)/', otherFormatHref).group(1)
+        otherFormat.append(asin)
+
+    additionalOptions = []
+    additionalOptionHrefs = response.xpath("//div[contains(@class, 'top-level')]//span/@data-tmm-see-more-editions-click").extract()
+    additionalOptionHrefs = list(filter(lambda x: '"metabindingUrl":"#"' not in x, additionalOptionHrefs))
+    for additionalOptionHref in additionalOptionHrefs:
+        asin = re.search('/dp/(\w+)/', additionalOptionHref).group(1)
+        additionalOptions.append(asin)
+    ```
+
     4. 页面底部的Product details
 
     ![](doc/parseA2.png)
+
+    - 对应解析代码
+
+    ```python
+    productDetail = {}
+    detailNames = response.xpath('//div[@id="detailBullets_feature_div"]/ul[contains(@class, "detail-bullet-list")]//span[@class="a-text-bold"]')
+    for detailName in detailNames:
+        key = detailName.xpath('.//text()').extract()[0][:-3]
+        value = detailName.xpath('../span[last()]/text()').extract()[0]
+        productDetail[key] = value
+    ```
 
     - 示例页面解析后的结果如下
 
