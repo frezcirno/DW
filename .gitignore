@@ -10,3 +10,7 @@ pidmissing.txt
 movie.jl
 data.jl
 titles.jl
+dist
+product.csv
+user.csv
+review.csv
