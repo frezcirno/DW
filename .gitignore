@@ -14,3 +14,4 @@ dist
 product.csv
 user.csv
 review.csv
+.DS_Store
