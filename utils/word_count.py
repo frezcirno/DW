@@ -22,22 +22,23 @@ if __name__ == '__main__':
     word_dict = {}
     result = {}
     with open('movies.txt', 'r', encoding="iso-8859-1") as f:
-        while (f.readline().strip()):
-            for i in range(5):
-                while (f.readline()[0:7] != "review/"):
-                    pass
-            summary = f.readline().strip().split(maxsplit=1)[-1]
-            text = f.readline().strip().split(maxsplit=1)[-1]
-            summary = summary.replace("<br />", " ")
-            text = text.replace("<br />", " ")
-            s = parsetree(summary, relations=True, lemmata=True)
-            t = parsetree(text, relations=True, lemmata=True)
-            for words in t:
-                for lemma in words.lemma:
-                    if lemma.isalpha():
-                        word_dict.setdefault(lemma, 0)
-                        word_dict[lemma] += 1
-            f.readline()
+        str0 = f.readline()
+        str1 = f.readline()
+        while (str0):
+            if (str0[0:14] == "review/summary" or str0[0:11] == "review/text"):
+                while (str1[0:17] != "product/productId" and str1[0:11] != "review/text"):
+                    str0 += str1
+                    str1 = f.readline()
+                text = str0.strip().split(maxsplit=1)[1]
+                text = text.replace("<br />", " ")
+                t = parsetree(text, relations=True, lemmata=True)
+                for words in t:
+                    for lemma in words.lemma:
+                        if lemma.isalpha():
+                            word_dict.setdefault(lemma, 0)
+                            word_dict[lemma] += 1
+            str0 = str1
+            str1 = f.readline()
 
     pd.DataFrame(word_dict, index=[1]).melt(var_name='word', value_name='count').to_csv('word_count.csv')
 
