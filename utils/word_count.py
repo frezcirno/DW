@@ -39,10 +39,12 @@ if __name__ == '__main__':
                         word_dict[lemma] += 1
             f.readline()
 
-    # 处理剩余的一些没有合并的变形
-    pd.DataFrame(word_dict, index=[1]).melt(var_name='word', value_name='count').to_csv('raw_word_count.csv')
-    for i in word_dict.items():
-        word = conjugate(i[0], "inf")
-        result.setdefault(word,0)
-        result[word] += i[1]
-    pd.DataFrame(result, index=[1]).melt(var_name='word', value_name='count').to_csv('word_count.csv')
+    pd.DataFrame(word_dict, index=[1]).melt(var_name='word', value_name='count').to_csv('word_count.csv')
+
+    # 处理剩余的一些没有合并的变形（现在动词变形的形容词和原词视为不同的词，此条作废）
+    # pd.DataFrame(word_dict, index=[1]).melt(var_name='word', value_name='count').to_csv('raw_word_count.csv')
+    # for i in word_dict.items():
+    #     word = conjugate(i[0], "inf")
+    #     result.setdefault(word,0)
+    #     result[word] += i[1]
+    # pd.DataFrame(result, index=[1]).melt(var_name='word', value_name='count').to_csv('word_count.csv')
