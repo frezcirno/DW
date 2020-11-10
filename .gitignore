@@ -15,3 +15,6 @@ product.csv
 user.csv
 review.csv
 .DS_Store
+movie_words.txt
+movies_out.txt
+word_count.csv
