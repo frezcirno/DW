@@ -21,24 +21,24 @@ if __name__ == '__main__':
     # 获取单词
     word_dict = {}
     result = {}
-    with open('movies.txt', 'r', encoding="iso-8859-1") as f:
+    with open('movies_out.txt', 'r') as f:
         str0 = f.readline()
-        str1 = f.readline()
-        while (str0):
-            if (str0[0:14] == "review/summary" or str0[0:11] == "review/text"):
-                while (str1[0:17] != "product/productId" and str1[0:11] != "review/text"):
-                    str0 += str1
-                    str1 = f.readline()
-                text = str0.strip().split(maxsplit=1)[1]
-                text = text.replace("<br />", " ")
-                t = parsetree(text, relations=True, lemmata=True)
-                for words in t:
-                    for lemma in words.lemma:
+        loop = 0
+        while str0:
+            loop += 1
+            text = str0.strip().split()
+            num = int(text[-1])
+            del text[-1]
+            for word in text:
+                tree = parsetree(word, lemmata=True)
+                for i in tree:
+                    for lemma in i.lemma:
                         if lemma.isalpha():
                             word_dict.setdefault(lemma, 0)
-                            word_dict[lemma] += 1
-            str0 = str1
-            str1 = f.readline()
+                            word_dict[lemma] += num
+            str0 = f.readline()
+
+    print(loop)
 
     pd.DataFrame(word_dict, index=[1]).melt(var_name='word', value_name='count').to_csv('word_count.csv')
 

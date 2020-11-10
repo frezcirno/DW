@@ -18,3 +18,5 @@ review.csv
 movies_out.txt
 movies_text.txt
 .idea
+movie_words.txt
+word_count.csv
