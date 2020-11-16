@@ -1,7 +1,6 @@
 data
 .vscode
 ignore
-movies.txt
 additionalOptions.csv
 data_fixed.jl
 node.csv
@@ -15,8 +14,12 @@ product.csv
 user.csv
 review.csv
 .DS_Store
-movies_out.txt
-movies_text.txt
 .idea
+*.exe
+movies.txt.zip
+movies.txt
+movies_out.txt
 movie_words.txt
+movies_text.txt
+movies_text_out.txt
 word_count.csv

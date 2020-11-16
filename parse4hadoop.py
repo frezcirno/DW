@@ -1,17 +1,12 @@
-import csv
-
 count = 0
 lastKeep = 0
 
-with open("movies.txt", encoding="iso-8859-1") as f, open(
-    "movies_text.txt", "w", encoding="iso-8859-1"
-) as fo:
+with open("movies.txt", encoding="iso-8859-1") as f, open("movies_text.txt", "w", encoding="iso-8859-1") as fo:
 
     for (index, line) in enumerate(f):
         line = line.replace("<br />", "").strip()
 
-        if line == "":
-            continue
+        if line == "": continue
 
         elif line.startswith("review/summary:"):
             value = line[16:].strip()
@@ -38,9 +33,3 @@ with open("movies.txt", encoding="iso-8859-1") as f, open(
 
 print("Fin.")
 print("Number of lines:", count)
-
-# 多字段
-# excel矩阵
-# 有很多关联
-# 9:00-5:30
-# 1-5

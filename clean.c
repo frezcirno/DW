@@ -19,7 +19,7 @@ int main()
         sum += fread(buf, 1, CHUNK_SIZE, fp);
         p = buf;
         for (int i = 0; i < CHUNK_SIZE; i++) {
-            if (ispunct(buf[i]) || !isprint(buf[i]) && buf[i] != '\n') {
+            if (ispunct(buf[i]) && buf[i] != '\'' && buf[i] != '&' || !isprint(buf[i]) && buf[i] != '\n') {
                 if (*(p - 1) != ' ') *p++ = ' ';
             } else {
                 *p++ = buf[i];
