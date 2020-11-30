@@ -1,9 +1,6 @@
 .vscode
 .idea
-
 .DS_Store
-
-data
 
 ignore
 
@@ -22,12 +19,8 @@ review.csv
 
 *.exe
 
-movies.txt
-movies.txt.zip
-
-movies_out.txt
-movies_text.txt
-movies_text_out.txt
-movie_words.txt
-
-example_word_count.csv
+data/snap/movies.txt.zip
+data/snap/movies.txt
+data/task2/movies_out.txt
+data/task2/movies_text_out.txt
+data/task2/movies_text.txt
