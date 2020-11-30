@@ -1,26 +1,49 @@
 .vscode
 .idea
 .DS_Store
+node_modules
+/dist
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+
+
+# Specification
 
 ignore
-
-movie.jl
-data.jl
-titles.jl
-data_fixed.jl
-
-node.csv
-otherFormat.csv
-additionalOptions.csv
-
-user.csv
-product.csv
-review.csv
 
 *.exe
 
 data/snap/movies.txt.zip
 data/snap/movies.txt
+
+data/task1/additionalOptions.csv
+data/task1/node.csv
+data/task1/otherFormat.csv
+
 data/task2/movies_out.txt
 data/task2/movies_text_out.txt
 data/task2/movies_text.txt
+data/task2/product.csv
+data/task2/review.csv
+data/task2/user.csv
+
+data/amazon/data_fixed.jl
+data/amazon/data.jl
+data/amazon/movie.jl
+data/amazon/titles.jl
