@@ -16,7 +16,7 @@ if __name__ == '__main__':
                     ch = f.read(1)
                     if not ch: break
             if not ch: break
-            if ch.isalnum() or ch == "\n" or ch == "'" or ch == "\t" or ch == "":
+            if ch.isalnum() or ch == "\n" or ch == "'" or ch == "\t" or ch == "" or ch == "&":
                 fo.write(ch)
             else:
                 ch = unicodedata.normalize('NFKD', ch).encode('ascii', 'ignore').decode()

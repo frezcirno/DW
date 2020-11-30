@@ -26,7 +26,7 @@ if __name__ == '__main__':
         loop = 0
         while str0:
             loop += 1
-            text = str0.strip().split()
+            text = str0.strip().replace("&quot", "").split()
             num = int(text[-1])
             del text[-1]
             for word in text:
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     print(loop)
 
-    pd.DataFrame(word_dict, index=[1]).melt(var_name='word', value_name='count').to_csv('word_count.csv')
+    pd.DataFrame(word_dict, index=[1]).melt(var_name='word', value_name='count').to_csv('word_count4.csv')
 
     # 处理剩余的一些没有合并的变形（现在动词变形的形容词和原词视为不同的词，此条作废）
     # pd.DataFrame(word_dict, index=[1]).melt(var_name='word', value_name='count').to_csv('raw_word_count.csv')
