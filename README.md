@@ -1,3 +1,35 @@
+# oy学长介绍
+
+1. 根据事实表, 提取维度表
+
+例:   
+    Review
+    /     \
+   /       \
+user_dim    movie_dim
+
+DAG-based数据开发
+
+建立Galaxy schema
+
+工具: Airflow, DolphinScheduler 等等
+
+2. 为Data Market生成数据
+
+从维度表中提取
+
+例: 
+- Top 10 电影
+- Helpfulness of user
+
+3. 开发工具
+
+- Apache zeppelin (类似一个大数据版的jupyter notebook)
+
+- DataGrip
+
+
+
 文件夹目录
 
 ```

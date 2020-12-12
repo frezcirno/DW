@@ -47,3 +47,5 @@ data/amazon/data_fixed.jl
 data/amazon/data.jl
 data/amazon/movie.jl
 data/amazon/titles.jl
+
+data/html/
