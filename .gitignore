@@ -49,3 +49,5 @@ data/amazon/movie.jl
 data/amazon/titles.jl
 
 data/html/
+data/extract/
+pc/

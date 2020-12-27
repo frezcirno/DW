@@ -8,7 +8,7 @@
     "isPortriat": true
   },
   "modelVersion": 2.01,
-  "defaultSchema": "Default",
+  "defaultSchema": "amazondb",
   "server": {
     "objectType": "Server_MYSQL",
     "name": "Default",
@@ -18,118 +18,8 @@
     "schemas": [
       {
         "objectType": "Schema_MYSQL",
-        "name": "Default",
+        "name": "amazondb",
         "tables": [
-          {
-            "objectType": "Table_MYSQL",
-            "name": "Act",
-            "comment": "",
-            "engine": "",
-            "characterSet": "",
-            "collation": "",
-            "autoIncrement": 0,
-            "tablespace": "",
-            "storage": "",
-            "insertMethod": "",
-            "connection": "",
-            "checksum": false,
-            "rowFormat": "",
-            "avgRowLength": 0,
-            "maxRows": 0,
-            "minRows": 0,
-            "keyBlockSize": 0,
-            "packKeys": "",
-            "delayKeyWrite": false,
-            "dataDirectory": "",
-            "indexDirectory": "",
-            "statsAutoRecalc": "",
-            "statsPersistent": "",
-            "statsSamplePages": 0,
-            "union": "",
-            "pageCheckSum": false,
-            "transactional": false,
-            "compression": "",
-            "oldName": "",
-            "encryption": false,
-            "createOptions": "",
-            "createTime": "",
-            "checkTime": "",
-            "dataFree": 0,
-            "dataLength": 0,
-            "indexLength": 0,
-            "maxDataLength": 0,
-            "rows": 0,
-            "updateTime": "",
-            "DDL": "",
-            "partitionBy": "",
-            "partitionByExpr": "",
-            "partitions": 0,
-            "partitionKeyAlgorithm": "",
-            "subPartitionBy": "",
-            "subPartitionByExpr": "",
-            "subPartitions": 0,
-            "subPartitionKeyAlgorithm": "",
-            "fields": [],
-            "indexes": [],
-            "foreignKeys": [],
-            "triggers": [],
-            "tablePartitions": []
-          },
-          {
-            "objectType": "Table_MYSQL",
-            "name": "table_1",
-            "comment": "",
-            "engine": "",
-            "characterSet": "",
-            "collation": "",
-            "autoIncrement": 0,
-            "tablespace": "",
-            "storage": "",
-            "insertMethod": "",
-            "connection": "",
-            "checksum": false,
-            "rowFormat": "",
-            "avgRowLength": 0,
-            "maxRows": 0,
-            "minRows": 0,
-            "keyBlockSize": 0,
-            "packKeys": "",
-            "delayKeyWrite": false,
-            "dataDirectory": "",
-            "indexDirectory": "",
-            "statsAutoRecalc": "",
-            "statsPersistent": "",
-            "statsSamplePages": 0,
-            "union": "",
-            "pageCheckSum": false,
-            "transactional": false,
-            "compression": "",
-            "oldName": "",
-            "encryption": false,
-            "createOptions": "",
-            "createTime": "",
-            "checkTime": "",
-            "dataFree": 0,
-            "dataLength": 0,
-            "indexLength": 0,
-            "maxDataLength": 0,
-            "rows": 0,
-            "updateTime": "",
-            "DDL": "",
-            "partitionBy": "",
-            "partitionByExpr": "",
-            "partitions": 0,
-            "partitionKeyAlgorithm": "",
-            "subPartitionBy": "",
-            "subPartitionByExpr": "",
-            "subPartitions": 0,
-            "subPartitionKeyAlgorithm": "",
-            "fields": [],
-            "indexes": [],
-            "foreignKeys": [],
-            "triggers": [],
-            "tablePartitions": []
-          },
           {
             "objectType": "Table_MYSQL",
             "name": "Direct",
@@ -264,8 +154,8 @@
                 "fields": [
                   "asin"
                 ],
-                "referenceSchema": "Default",
-                "referenceTable": "Movie",
+                "referenceSchema": "amazondb",
+                "referenceTable": "MovieProduct",
                 "referenceFields": [
                   "asin"
                 ],
@@ -281,7 +171,7 @@
                 "fields": [
                   "pid"
                 ],
-                "referenceSchema": "Default",
+                "referenceSchema": "amazondb",
                 "referenceTable": "Person",
                 "referenceFields": [
                   "id"
@@ -553,8 +443,8 @@
                 "fields": [
                   "asin"
                 ],
-                "referenceSchema": "Default",
-                "referenceTable": "Movie",
+                "referenceSchema": "amazondb",
+                "referenceTable": "MovieProduct",
                 "referenceFields": [
                   "asin"
                 ],
@@ -568,9 +458,9 @@
                 "objectType": "ForeignKey_MYSQL",
                 "name": "fk_Review_User_1",
                 "fields": [
-                  "id"
+                  "uid"
                 ],
-                "referenceSchema": "Default",
+                "referenceSchema": "amazondb",
                 "referenceTable": "User",
                 "referenceFields": [
                   "id"
@@ -963,12 +853,12 @@
             "foreignKeys": [
               {
                 "objectType": "ForeignKey_MYSQL",
-                "name": "fk_Direct_Movie_1_copy_2",
+                "name": "fk_Star_Movie_1",
                 "fields": [
                   "asin"
                 ],
-                "referenceSchema": "Default",
-                "referenceTable": "Movie",
+                "referenceSchema": "amazondb",
+                "referenceTable": "MovieProduct",
                 "referenceFields": [
                   "asin"
                 ],
@@ -980,11 +870,11 @@
               },
               {
                 "objectType": "ForeignKey_MYSQL",
-                "name": "fk_Direct_Person_1_copy_2",
+                "name": "fk_Star_Person_1",
                 "fields": [
                   "pid"
                 ],
-                "referenceSchema": "Default",
+                "referenceSchema": "amazondb",
                 "referenceTable": "Person",
                 "referenceFields": [
                   "id"
@@ -1129,12 +1019,344 @@
             "foreignKeys": [
               {
                 "objectType": "ForeignKey_MYSQL",
-                "name": "fk_Direct_Movie_1_copy_1",
+                "name": "fk_Actin_Person_1",
+                "fields": [
+                  "pid"
+                ],
+                "referenceSchema": "amazondb",
+                "referenceTable": "Person",
+                "referenceFields": [
+                  "id"
+                ],
+                "onDelete": "",
+                "onUpdate": "",
+                "sourceCardinality": "NoneRelationship",
+                "targetCardinality": "NoneRelationship",
+                "oldName": ""
+              },
+              {
+                "objectType": "ForeignKey_MYSQL",
+                "name": "fk_Actin_Movie_1",
                 "fields": [
                   "asin"
                 ],
-                "referenceSchema": "Default",
-                "referenceTable": "Movie",
+                "referenceSchema": "amazondb",
+                "referenceTable": "MovieProduct",
+                "referenceFields": [
+                  "asin"
+                ],
+                "onDelete": "",
+                "onUpdate": "",
+                "sourceCardinality": "NoneRelationship",
+                "targetCardinality": "NoneRelationship",
+                "oldName": ""
+              }
+            ],
+            "triggers": [],
+            "tablePartitions": []
+          },
+          {
+            "objectType": "Table_MYSQL",
+            "name": "Write",
+            "comment": "",
+            "engine": "",
+            "characterSet": "",
+            "collation": "",
+            "autoIncrement": 0,
+            "tablespace": "",
+            "storage": "",
+            "insertMethod": "",
+            "connection": "",
+            "checksum": false,
+            "rowFormat": "",
+            "avgRowLength": 0,
+            "maxRows": 0,
+            "minRows": 0,
+            "keyBlockSize": 0,
+            "packKeys": "",
+            "delayKeyWrite": false,
+            "dataDirectory": "",
+            "indexDirectory": "",
+            "statsAutoRecalc": "",
+            "statsPersistent": "",
+            "statsSamplePages": 0,
+            "union": "",
+            "pageCheckSum": false,
+            "transactional": false,
+            "compression": "",
+            "oldName": "",
+            "encryption": false,
+            "createOptions": "",
+            "createTime": "",
+            "checkTime": "",
+            "dataFree": 0,
+            "dataLength": 0,
+            "indexLength": 0,
+            "maxDataLength": 0,
+            "rows": 0,
+            "updateTime": "",
+            "DDL": "",
+            "partitionBy": "",
+            "partitionByExpr": "",
+            "partitions": 0,
+            "partitionKeyAlgorithm": "",
+            "subPartitionBy": "",
+            "subPartitionByExpr": "",
+            "subPartitions": 0,
+            "subPartitionKeyAlgorithm": "",
+            "fields": [
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "asin",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": false,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "asin"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "pid",
+                "type": "int",
+                "length": -2147483648,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": false,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "pid"
+              }
+            ],
+            "indexes": [],
+            "primaryKey": {
+              "objectType": "PrimaryKey_MYSQL",
+              "name": "",
+              "fields": [
+                {
+                  "objectType": "IndexField_MYSQL",
+                  "name": "asin",
+                  "keyLength": -2147483648,
+                  "order": "",
+                  "oldName": ""
+                },
+                {
+                  "objectType": "IndexField_MYSQL",
+                  "name": "pid",
+                  "keyLength": 0,
+                  "order": "",
+                  "oldName": ""
+                }
+              ],
+              "oldName": "",
+              "indexMethod": "",
+              "comment": ""
+            },
+            "foreignKeys": [
+              {
+                "objectType": "ForeignKey_MYSQL",
+                "name": "fk_Write_Person_1",
+                "fields": [
+                  "pid"
+                ],
+                "referenceSchema": "amazondb",
+                "referenceTable": "Person",
+                "referenceFields": [
+                  "id"
+                ],
+                "onDelete": "",
+                "onUpdate": "",
+                "sourceCardinality": "NoneRelationship",
+                "targetCardinality": "NoneRelationship",
+                "oldName": ""
+              },
+              {
+                "objectType": "ForeignKey_MYSQL",
+                "name": "fk_Write_Movie_1",
+                "fields": [
+                  "asin"
+                ],
+                "referenceSchema": "amazondb",
+                "referenceTable": "MovieProduct",
+                "referenceFields": [
+                  "asin"
+                ],
+                "onDelete": "",
+                "onUpdate": "",
+                "sourceCardinality": "NoneRelationship",
+                "targetCardinality": "NoneRelationship",
+                "oldName": ""
+              }
+            ],
+            "triggers": [],
+            "tablePartitions": []
+          },
+          {
+            "objectType": "Table_MYSQL",
+            "name": "Produce",
+            "comment": "",
+            "engine": "",
+            "characterSet": "",
+            "collation": "",
+            "autoIncrement": 0,
+            "tablespace": "",
+            "storage": "",
+            "insertMethod": "",
+            "connection": "",
+            "checksum": false,
+            "rowFormat": "",
+            "avgRowLength": 0,
+            "maxRows": 0,
+            "minRows": 0,
+            "keyBlockSize": 0,
+            "packKeys": "",
+            "delayKeyWrite": false,
+            "dataDirectory": "",
+            "indexDirectory": "",
+            "statsAutoRecalc": "",
+            "statsPersistent": "",
+            "statsSamplePages": 0,
+            "union": "",
+            "pageCheckSum": false,
+            "transactional": false,
+            "compression": "",
+            "oldName": "",
+            "encryption": false,
+            "createOptions": "",
+            "createTime": "",
+            "checkTime": "",
+            "dataFree": 0,
+            "dataLength": 0,
+            "indexLength": 0,
+            "maxDataLength": 0,
+            "rows": 0,
+            "updateTime": "",
+            "DDL": "",
+            "partitionBy": "",
+            "partitionByExpr": "",
+            "partitions": 0,
+            "partitionKeyAlgorithm": "",
+            "subPartitionBy": "",
+            "subPartitionByExpr": "",
+            "subPartitions": 0,
+            "subPartitionKeyAlgorithm": "",
+            "fields": [
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "asin",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": false,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "asin"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "pid",
+                "type": "int",
+                "length": -2147483648,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": false,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "pid"
+              }
+            ],
+            "indexes": [],
+            "primaryKey": {
+              "objectType": "PrimaryKey_MYSQL",
+              "name": "",
+              "fields": [
+                {
+                  "objectType": "IndexField_MYSQL",
+                  "name": "asin",
+                  "keyLength": -2147483648,
+                  "order": "",
+                  "oldName": ""
+                },
+                {
+                  "objectType": "IndexField_MYSQL",
+                  "name": "pid",
+                  "keyLength": 0,
+                  "order": "",
+                  "oldName": ""
+                }
+              ],
+              "oldName": "",
+              "indexMethod": "",
+              "comment": ""
+            },
+            "foreignKeys": [
+              {
+                "objectType": "ForeignKey_MYSQL",
+                "name": "fk_Produce_Movie_1",
+                "fields": [
+                  "asin"
+                ],
+                "referenceSchema": "amazondb",
+                "referenceTable": "MovieProduct",
                 "referenceFields": [
                   "asin"
                 ],
@@ -1146,11 +1368,11 @@
               },
               {
                 "objectType": "ForeignKey_MYSQL",
-                "name": "fk_Direct_Person_1_copy_1",
+                "name": "fk_Produce_Person_1",
                 "fields": [
                   "pid"
                 ],
-                "referenceSchema": "Default",
+                "referenceSchema": "amazondb",
                 "referenceTable": "Person",
                 "referenceFields": [
                   "id"
@@ -1167,7 +1389,7 @@
           },
           {
             "objectType": "Table_MYSQL",
-            "name": "Genres",
+            "name": "Movie",
             "comment": "",
             "engine": "",
             "characterSet": "",
@@ -1258,7 +1480,7 @@
                 "defaultValue": "",
                 "isOnUpdateCurrentTimestamp": false,
                 "isAutoInc": false,
-                "comment": "题材名",
+                "comment": "电影名字",
                 "columnFormat": "",
                 "storage": "",
                 "isVirtual": false,
@@ -1291,7 +1513,7 @@
           },
           {
             "objectType": "Table_MYSQL",
-            "name": "Movie",
+            "name": "MovieProduct",
             "comment": "",
             "engine": "",
             "characterSet": "",
@@ -1367,6 +1589,32 @@
               },
               {
                 "objectType": "TableField_MYSQL",
+                "name": "movie_id",
+                "type": "int",
+                "length": -2147483648,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "属于哪一部电影",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "movie_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
                 "name": "title",
                 "type": "varchar",
                 "length": 255,
@@ -1390,32 +1638,6 @@
                 "virtualExpr": "",
                 "virtualType": "",
                 "oldName": "title"
-              },
-              {
-                "objectType": "TableField_MYSQL",
-                "name": "score",
-                "type": "float",
-                "length": -2147483648,
-                "decimals": -2147483648,
-                "isUnsigned": false,
-                "isZeroFill": false,
-                "setEnumValues": "",
-                "isBinary": false,
-                "charset": "",
-                "collation": "",
-                "isNullable": true,
-                "defaultType": "Others",
-                "defaultValue": "",
-                "isOnUpdateCurrentTimestamp": false,
-                "isAutoInc": false,
-                "comment": "打分",
-                "columnFormat": "",
-                "storage": "",
-                "isVirtual": false,
-                "isGeneratedAlways": false,
-                "virtualExpr": "",
-                "virtualType": "",
-                "oldName": "score"
               },
               {
                 "objectType": "TableField_MYSQL",
@@ -1445,8 +1667,216 @@
               },
               {
                 "objectType": "TableField_MYSQL",
-                "name": "genre_id",
-                "type": "int",
+                "name": "genre",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "题材",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "genre"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "language",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "语言",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "language"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "packageDimensions",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "包装尺寸",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "packageDimensions"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "productDimensions",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "外包装尺寸",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "productDimensions"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "firstAvailable",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "数据登记时间",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "firstAvailable"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "studio",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "电影出版社",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "studio"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "format",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "格式, 例: VHS Tape/DVD",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "format"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "mediaFormat",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "媒体格式, 例: VHS/Anamorphic",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "mediaFormat"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "runTime",
+                "type": "bigint",
                 "length": -2147483648,
                 "decimals": -2147483648,
                 "isUnsigned": false,
@@ -1460,14 +1890,92 @@
                 "defaultValue": "",
                 "isOnUpdateCurrentTimestamp": false,
                 "isAutoInc": false,
-                "comment": "题材id",
+                "comment": "电影长度, 以秒为单位",
                 "columnFormat": "",
                 "storage": "",
                 "isVirtual": false,
                 "isGeneratedAlways": false,
                 "virtualExpr": "",
                 "virtualType": "",
-                "oldName": "genre_id"
+                "oldName": "runTime"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "releaseDate",
+                "type": "datetime",
+                "length": -2147483648,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "上映时间",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "releaseDate"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "aspectRatio",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "长宽比",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "aspectRatio"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "MPAA",
+                "type": "varchar",
+                "length": 255,
+                "decimals": -2147483648,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "MPAA分级",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "MPAA"
               }
             ],
             "indexes": [],
@@ -1494,8 +2002,25 @@
                 "fields": [
                   "genre_id"
                 ],
-                "referenceSchema": "Default",
+                "referenceSchema": "amazondb",
                 "referenceTable": "Genres",
+                "referenceFields": [
+                  "id"
+                ],
+                "onDelete": "",
+                "onUpdate": "",
+                "sourceCardinality": "NoneRelationship",
+                "targetCardinality": "NoneRelationship",
+                "oldName": ""
+              },
+              {
+                "objectType": "ForeignKey_MYSQL",
+                "name": "fk_MovieProduct_Movie_1",
+                "fields": [
+                  "movie_id"
+                ],
+                "referenceSchema": "amazondb",
+                "referenceTable": "Movie",
                 "referenceFields": [
                   "id"
                 ],
@@ -1530,12 +2055,12 @@
       "shapes": [
         {
           "type": "table",
-          "schemaName": "Default",
-          "tableName": "Movie",
-          "x": 520,
-          "y": 510,
-          "width": 200,
-          "height": 200,
+          "schemaName": "amazondb",
+          "tableName": "MovieProduct",
+          "x": 230,
+          "y": 410,
+          "width": 210,
+          "height": 370,
           "isBold": false,
           "titleColor": {
             "r": 55,
@@ -1546,12 +2071,12 @@
         },
         {
           "type": "table",
-          "schemaName": "Default",
+          "schemaName": "amazondb",
           "tableName": "Person",
-          "x": 30,
-          "y": 640,
-          "width": 200,
-          "height": 200,
+          "x": 390,
+          "y": 1170,
+          "width": 150,
+          "height": 80,
           "isBold": false,
           "titleColor": {
             "r": 55,
@@ -1562,12 +2087,12 @@
         },
         {
           "type": "table",
-          "schemaName": "Default",
+          "schemaName": "amazondb",
           "tableName": "Review",
-          "x": 520,
-          "y": 280,
-          "width": 200,
-          "height": 200,
+          "x": 250,
+          "y": 170,
+          "width": 180,
+          "height": 190,
           "isBold": false,
           "titleColor": {
             "r": 55,
@@ -1578,12 +2103,12 @@
         },
         {
           "type": "table",
-          "schemaName": "Default",
+          "schemaName": "amazondb",
           "tableName": "User",
-          "x": 520,
+          "x": 240,
           "y": 30,
           "width": 200,
-          "height": 200,
+          "height": 90,
           "isBold": false,
           "titleColor": {
             "r": 55,
@@ -1594,10 +2119,10 @@
         },
         {
           "type": "table",
-          "schemaName": "Default",
+          "schemaName": "amazondb",
           "tableName": "Direct",
-          "x": 70,
-          "y": 890,
+          "x": 580,
+          "y": 1170,
           "width": 150,
           "height": 80,
           "isBold": false,
@@ -1610,10 +2135,10 @@
         },
         {
           "type": "table",
-          "schemaName": "Default",
+          "schemaName": "amazondb",
           "tableName": "Actin",
-          "x": 70,
-          "y": 520,
+          "x": 420,
+          "y": 830,
           "width": 150,
           "height": 80,
           "isBold": false,
@@ -1626,10 +2151,10 @@
         },
         {
           "type": "table",
-          "schemaName": "Default",
+          "schemaName": "amazondb",
           "tableName": "Star",
-          "x": 280,
-          "y": 660,
+          "x": 290,
+          "y": 970,
           "width": 150,
           "height": 80,
           "isBold": false,
@@ -1642,12 +2167,44 @@
         },
         {
           "type": "table",
-          "schemaName": "Default",
-          "tableName": "Genres",
-          "x": 770,
-          "y": 510,
-          "width": 200,
-          "height": 200,
+          "schemaName": "amazondb",
+          "tableName": "Write",
+          "x": 30,
+          "y": 540,
+          "width": 150,
+          "height": 90,
+          "isBold": false,
+          "titleColor": {
+            "r": 55,
+            "g": 131,
+            "b": 192,
+            "a": 1
+          }
+        },
+        {
+          "type": "table",
+          "schemaName": "amazondb",
+          "tableName": "Produce",
+          "x": 720,
+          "y": 1310,
+          "width": 150,
+          "height": 80,
+          "isBold": false,
+          "titleColor": {
+            "r": 55,
+            "g": 131,
+            "b": 192,
+            "a": 1
+          }
+        },
+        {
+          "type": "table",
+          "schemaName": "amazondb",
+          "tableName": "Movie",
+          "x": 490,
+          "y": 400,
+          "width": 160,
+          "height": 90,
           "isBold": false,
           "titleColor": {
             "r": 55,
@@ -1662,26 +2219,26 @@
         {
           "name": "fk_Direct_Movie_1",
           "sourceTableName": "Direct",
-          "sourceSchemaName": "Default",
+          "sourceSchemaName": "amazondb",
           "lineWidth": 1,
           "visible": true,
           "vertices": [
             {
-              "x": 235,
-              "y": 930
+              "x": 660,
+              "y": 1155
             },
             {
-              "x": 630,
-              "y": 930
+              "x": 660,
+              "y": 620
             },
             {
-              "x": 630,
-              "y": 725
+              "x": 455,
+              "y": 620
             }
           ],
           "label": {
-            "x": 97,
-            "y": 892,
+            "x": 534,
+            "y": 1125,
             "width": 128,
             "height": 30,
             "fontName": "Arial Unicode MS",
@@ -1700,167 +2257,23 @@
         {
           "name": "fk_Direct_Person_1",
           "sourceTableName": "Direct",
-          "sourceSchemaName": "Default",
+          "sourceSchemaName": "amazondb",
           "lineWidth": 1,
           "visible": true,
           "vertices": [
             {
-              "x": 140,
-              "y": 875
+              "x": 565,
+              "y": 1210
             },
             {
-              "x": 140,
-              "y": 855
+              "x": 555,
+              "y": 1210
             }
           ],
           "label": {
-            "x": 11,
-            "y": 845,
+            "x": 444,
+            "y": 1172,
             "width": 131,
-            "height": 30,
-            "fontName": "Arial Unicode MS",
-            "fontSize": 14,
-            "fontColor": {
-              "r": 51,
-              "g": 51,
-              "b": 51,
-              "a": 1
-            },
-            "isFontBold": false,
-            "isFontItalic": false,
-            "isVisible": false
-          }
-        },
-        {
-          "name": "fk_Direct_Movie_1_copy_1",
-          "sourceTableName": "Actin",
-          "sourceSchemaName": "Default",
-          "lineWidth": 1,
-          "visible": true,
-          "vertices": [
-            {
-              "x": 235,
-              "y": 560
-            },
-            {
-              "x": 505,
-              "y": 560
-            }
-          ],
-          "label": {
-            "x": 120,
-            "y": 522,
-            "width": 180,
-            "height": 30,
-            "fontName": "Arial Unicode MS",
-            "fontSize": 14,
-            "fontColor": {
-              "r": 51,
-              "g": 51,
-              "b": 51,
-              "a": 1
-            },
-            "isFontBold": false,
-            "isFontItalic": false,
-            "isVisible": false
-          }
-        },
-        {
-          "name": "fk_Direct_Person_1_copy_1",
-          "sourceTableName": "Actin",
-          "sourceSchemaName": "Default",
-          "lineWidth": 1,
-          "visible": true,
-          "vertices": [
-            {
-              "x": 140,
-              "y": 615
-            },
-            {
-              "x": 140,
-              "y": 625
-            }
-          ],
-          "label": {
-            "x": 34,
-            "y": 565,
-            "width": 183,
-            "height": 30,
-            "fontName": "Arial Unicode MS",
-            "fontSize": 14,
-            "fontColor": {
-              "r": 51,
-              "g": 51,
-              "b": 51,
-              "a": 1
-            },
-            "isFontBold": false,
-            "isFontItalic": false,
-            "isVisible": false
-          }
-        },
-        {
-          "name": "fk_Direct_Movie_1_copy_2",
-          "sourceTableName": "Star",
-          "sourceSchemaName": "Default",
-          "lineWidth": 1,
-          "visible": true,
-          "vertices": [
-            {
-              "x": 445,
-              "y": 700
-            },
-            {
-              "x": 470,
-              "y": 700
-            },
-            {
-              "x": 470,
-              "y": 670
-            },
-            {
-              "x": 505,
-              "y": 670
-            }
-          ],
-          "label": {
-            "x": 400,
-            "y": 662,
-            "width": 180,
-            "height": 30,
-            "fontName": "Arial Unicode MS",
-            "fontSize": 14,
-            "fontColor": {
-              "r": 51,
-              "g": 51,
-              "b": 51,
-              "a": 1
-            },
-            "isFontBold": false,
-            "isFontItalic": false,
-            "isVisible": false
-          }
-        },
-        {
-          "name": "fk_Direct_Person_1_copy_2",
-          "sourceTableName": "Star",
-          "sourceSchemaName": "Default",
-          "lineWidth": 1,
-          "visible": true,
-          "vertices": [
-            {
-              "x": 265,
-              "y": 720
-            },
-            {
-              "x": 245,
-              "y": 720
-            }
-          ],
-          "label": {
-            "x": 237,
-            "y": 682,
-            "width": 183,
             "height": 30,
             "fontName": "Arial Unicode MS",
             "fontSize": 14,
@@ -1878,23 +2291,319 @@
         {
           "name": "fk_Review_Movie_1",
           "sourceTableName": "Review",
-          "sourceSchemaName": "Default",
+          "sourceSchemaName": "amazondb",
           "lineWidth": 1,
           "visible": true,
           "vertices": [
             {
-              "x": 630,
-              "y": 495
+              "x": 340,
+              "y": 375
             },
             {
-              "x": 630,
-              "y": 495
+              "x": 340,
+              "y": 395
             }
           ],
           "label": {
-            "x": 497,
-            "y": 445,
+            "x": 207,
+            "y": 325,
             "width": 135,
+            "height": 30,
+            "fontName": "Arial Unicode MS",
+            "fontSize": 14,
+            "fontColor": {
+              "r": 51,
+              "g": 51,
+              "b": 51,
+              "a": 1
+            },
+            "isFontBold": false,
+            "isFontItalic": false,
+            "isVisible": false
+          }
+        },
+        {
+          "name": "fk_Write_Person_1",
+          "sourceTableName": "Write",
+          "sourceSchemaName": "amazondb",
+          "lineWidth": 1,
+          "visible": true,
+          "vertices": [
+            {
+              "x": 110,
+              "y": 645
+            },
+            {
+              "x": 110,
+              "y": 1210
+            },
+            {
+              "x": 375,
+              "y": 1210
+            }
+          ],
+          "label": {
+            "x": 0,
+            "y": 595,
+            "width": 127,
+            "height": 30,
+            "fontName": "Arial Unicode MS",
+            "fontSize": 14,
+            "fontColor": {
+              "r": 51,
+              "g": 51,
+              "b": 51,
+              "a": 1
+            },
+            "isFontBold": false,
+            "isFontItalic": false,
+            "isVisible": false
+          }
+        },
+        {
+          "name": "fk_Write_Movie_1",
+          "sourceTableName": "Write",
+          "sourceSchemaName": "amazondb",
+          "lineWidth": 1,
+          "visible": true,
+          "vertices": [
+            {
+              "x": 195,
+              "y": 590
+            },
+            {
+              "x": 215,
+              "y": 590
+            }
+          ],
+          "label": {
+            "x": 185,
+            "y": 552,
+            "width": 124,
+            "height": 30,
+            "fontName": "Arial Unicode MS",
+            "fontSize": 14,
+            "fontColor": {
+              "r": 51,
+              "g": 51,
+              "b": 51,
+              "a": 1
+            },
+            "isFontBold": false,
+            "isFontItalic": false,
+            "isVisible": false
+          }
+        },
+        {
+          "name": "fk_Produce_Movie_1",
+          "sourceTableName": "Produce",
+          "sourceSchemaName": "amazondb",
+          "lineWidth": 1,
+          "visible": true,
+          "vertices": [
+            {
+              "x": 790,
+              "y": 1295
+            },
+            {
+              "x": 790,
+              "y": 550
+            },
+            {
+              "x": 455,
+              "y": 550
+            }
+          ],
+          "label": {
+            "x": 792,
+            "y": 1265,
+            "width": 143,
+            "height": 30,
+            "fontName": "Arial Unicode MS",
+            "fontSize": 14,
+            "fontColor": {
+              "r": 51,
+              "g": 51,
+              "b": 51,
+              "a": 1
+            },
+            "isFontBold": false,
+            "isFontItalic": false,
+            "isVisible": false
+          }
+        },
+        {
+          "name": "fk_Produce_Person_1",
+          "sourceTableName": "Produce",
+          "sourceSchemaName": "amazondb",
+          "lineWidth": 1,
+          "visible": true,
+          "vertices": [
+            {
+              "x": 705,
+              "y": 1350
+            },
+            {
+              "x": 460,
+              "y": 1350
+            },
+            {
+              "x": 460,
+              "y": 1265
+            }
+          ],
+          "label": {
+            "x": 569,
+            "y": 1312,
+            "width": 146,
+            "height": 30,
+            "fontName": "Arial Unicode MS",
+            "fontSize": 14,
+            "fontColor": {
+              "r": 51,
+              "g": 51,
+              "b": 51,
+              "a": 1
+            },
+            "isFontBold": false,
+            "isFontItalic": false,
+            "isVisible": false
+          }
+        },
+        {
+          "name": "fk_Star_Movie_1",
+          "sourceTableName": "Star",
+          "sourceSchemaName": "amazondb",
+          "lineWidth": 1,
+          "visible": true,
+          "vertices": [
+            {
+              "x": 370,
+              "y": 955
+            },
+            {
+              "x": 370,
+              "y": 795
+            }
+          ],
+          "label": {
+            "x": 372,
+            "y": 925,
+            "width": 114,
+            "height": 30,
+            "fontName": "Arial Unicode MS",
+            "fontSize": 14,
+            "fontColor": {
+              "r": 51,
+              "g": 51,
+              "b": 51,
+              "a": 1
+            },
+            "isFontBold": false,
+            "isFontItalic": false,
+            "isVisible": false
+          }
+        },
+        {
+          "name": "fk_Star_Person_1",
+          "sourceTableName": "Star",
+          "sourceSchemaName": "amazondb",
+          "lineWidth": 1,
+          "visible": true,
+          "vertices": [
+            {
+              "x": 400,
+              "y": 1065
+            },
+            {
+              "x": 400,
+              "y": 1110
+            },
+            {
+              "x": 420,
+              "y": 1110
+            },
+            {
+              "x": 420,
+              "y": 1155
+            }
+          ],
+          "label": {
+            "x": 402,
+            "y": 1015,
+            "width": 117,
+            "height": 30,
+            "fontName": "Arial Unicode MS",
+            "fontSize": 14,
+            "fontColor": {
+              "r": 51,
+              "g": 51,
+              "b": 51,
+              "a": 1
+            },
+            "isFontBold": false,
+            "isFontItalic": false,
+            "isVisible": false
+          }
+        },
+        {
+          "name": "fk_Actin_Person_1",
+          "sourceTableName": "Actin",
+          "sourceSchemaName": "amazondb",
+          "lineWidth": 1,
+          "visible": true,
+          "vertices": [
+            {
+              "x": 500,
+              "y": 925
+            },
+            {
+              "x": 500,
+              "y": 1155
+            }
+          ],
+          "label": {
+            "x": 508,
+            "y": 915,
+            "width": 126,
+            "height": 30,
+            "fontName": "Arial Unicode MS",
+            "fontSize": 14,
+            "fontColor": {
+              "r": 51,
+              "g": 51,
+              "b": 51,
+              "a": 1
+            },
+            "isFontBold": false,
+            "isFontItalic": false,
+            "isVisible": false
+          }
+        },
+        {
+          "name": "fk_Actin_Movie_1",
+          "sourceTableName": "Actin",
+          "sourceSchemaName": "amazondb",
+          "lineWidth": 1,
+          "visible": true,
+          "vertices": [
+            {
+              "x": 500,
+              "y": 815
+            },
+            {
+              "x": 500,
+              "y": 710
+            },
+            {
+              "x": 455,
+              "y": 710
+            }
+          ],
+          "label": {
+            "x": 502,
+            "y": 785,
+            "width": 123,
             "height": 30,
             "fontName": "Arial Unicode MS",
             "fontSize": 14,
@@ -1912,22 +2621,22 @@
         {
           "name": "fk_Review_User_1",
           "sourceTableName": "Review",
-          "sourceSchemaName": "Default",
+          "sourceSchemaName": "amazondb",
           "lineWidth": 1,
           "visible": true,
           "vertices": [
             {
-              "x": 630,
-              "y": 265
+              "x": 340,
+              "y": 155
             },
             {
-              "x": 630,
-              "y": 245
+              "x": 340,
+              "y": 135
             }
           ],
           "label": {
-            "x": 510,
-            "y": 235,
+            "x": 348,
+            "y": 135,
             "width": 122,
             "height": 30,
             "fontName": "Arial Unicode MS",
@@ -1944,25 +2653,25 @@
           }
         },
         {
-          "name": "fk_Movie_Genres_1",
-          "sourceTableName": "Movie",
-          "sourceSchemaName": "Default",
+          "name": "fk_MovieProduct_Movie_1",
+          "sourceTableName": "MovieProduct",
+          "sourceSchemaName": "amazondb",
           "lineWidth": 1,
           "visible": true,
           "vertices": [
             {
-              "x": 735,
-              "y": 610
+              "x": 455,
+              "y": 450
             },
             {
-              "x": 755,
-              "y": 610
+              "x": 475,
+              "y": 450
             }
           ],
           "label": {
-            "x": 731,
-            "y": 612,
-            "width": 134,
+            "x": 445,
+            "y": 412,
+            "width": 182,
             "height": 30,
             "fontName": "Arial Unicode MS",
             "fontSize": 14,
