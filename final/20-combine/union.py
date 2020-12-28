@@ -3,7 +3,7 @@ import ujson as json
 import UnionFind
 
 data = []
-pid_list = []
+pid_list = set()
 
 
 with open("data/extract/movie.jl") as movie:
