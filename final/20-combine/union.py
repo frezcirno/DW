@@ -29,6 +29,3 @@ print("Final Elements: ", myUnionFind.n_elts)
 
 with open("components.txt", "w", encoding="utf-8") as outputfile:
     print(myUnionFind.components(), file=outputfile)
-
-with open("component_mapping.txt", "w", encoding="utf-8") as outputfile:
-    print(myUnionFind.component_mapping(), file=outputfile)

@@ -1,5 +1,6 @@
 import re
 import tqdm
+from datetime import datetime
 import ujson as json
 
 raw_products = {}
@@ -7,6 +8,25 @@ with open("data/extract/movie.jl") as movie:
     for line in tqdm.tqdm(movie, desc="loading"):
         j = json.loads(line)
         raw_products[j["pid"]] = j
+
+all_movies = set()
+parent = {}
+with open("data/extract/components.txt") as components:
+    for group in map(
+        lambda group: list(map(lambda item: item.strip(), group.split(","))),
+        components.read()
+        .replace("[", "")
+        .replace("]", "")
+        .replace("{", "")
+        .replace("},", "}")
+        .replace("'", "")
+        .split("}"),
+    ):
+        if group[0] == "":
+            continue
+        all_movies.add(group[0])
+        for item in group:
+            parent[item] = group[0]
 
 
 monthNames = {
@@ -44,8 +64,18 @@ def handleTime(time):
     return f"{y}-{m}-{d}"
 
 
+all_genres = set()
+
+
 def handleGenres(genres):
-    return [g.strip() for g in genres.split(",")]
+    res = []
+    for g in genres.split(","):
+        gg = g.strip()
+        if gg == "":
+            continue
+        all_genres.add(gg)
+        res.append(gg)
+    return res
 
 
 all_actors = set()
@@ -81,6 +111,7 @@ with open("cooked.jl", "w", encoding="utf-8") as cooked:
         cooked_products = {}
         raw_product = raw_products[pid]
         cooked_products["pid"] = pid
+        cooked_products["title"] = raw_product["title"]
         cooked_products["release"] = handleTime(
             raw_product.get("Release date", raw_product.get("Date First Available", ""))
         )
@@ -92,6 +123,7 @@ with open("cooked.jl", "w", encoding="utf-8") as cooked:
         )
         # TODO: Keyword里面可能有题材关键词
         cooked_products["genres"] = handleGenres(raw_product.get("Genres", ""))
+        cooked_products["movie"] = parent[pid]
         cooked_products["star"] = raw_product.get("star", 0)
         cooked_products["pos_review_count"] = 0
         cooked_products["neg_review_count"] = 0
@@ -104,3 +136,11 @@ with open("actor.jl", "w", encoding="utf-8") as actor:
 with open("director.jl", "w", encoding="utf-8") as director:
     for director_name in all_directors:
         director.write(director_name + "\n")
+
+with open("movie.jl", "w", encoding="utf-8") as movie:
+    for movie_name in all_movies:
+        movie.write(movie_name + "\n")
+
+with open("genres.jl", "w", encoding="utf-8") as genres:
+    for genres_name in all_genres:
+        genres.write(genres_name + "\n")
