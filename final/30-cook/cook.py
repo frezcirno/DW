@@ -68,42 +68,43 @@ all_genres = set()
 
 
 def handleGenres(genres):
-    res = []
-    for g in genres.split(","):
+    res = set()
+    for g in genres.replace("and", "").split(","):
         gg = g.strip()
         if gg == "":
             continue
         all_genres.add(gg)
-        res.append(gg)
-    return res
+        res.add(gg)
+    return list(res)
 
 
 all_actors = set()
 
 
 def handleActors(actors):
-    res = []
-    for a in actors.split(","):
+    res = set()
+    aa = ""
+    for a in re.split("\r|\n|,|;|/| - ", actors.replace(" and ", ",").replace(" And ", ",").replace(" AND ", ",")):
         aa = a.strip()
         if aa == "":
             continue
         all_actors.add(aa)
-        res.append(aa)
-    return res
+        res.add(aa)
+    return list(res)
 
 
 all_directors = set()
 
 
 def handleDirectors(director):
-    res = []
-    for a in director.replace("and", ",").split(","):
+    res = set()
+    for a in re.split("\r|\n|,|;|/| - ", director.replace(" and ", ",").replace(" And ", ",").replace(" AND ", ",")):
         aa = a.strip()
         if aa == "":
             continue
         all_directors.add(aa)
-        res.append(aa)
-    return res
+        res.add(aa)
+    return list(res)
 
 
 with open("cooked.jl", "w", encoding="utf-8") as cooked:
@@ -115,7 +116,7 @@ with open("cooked.jl", "w", encoding="utf-8") as cooked:
         cooked_products["release"] = handleTime(
             raw_product.get("Release date", raw_product.get("Date First Available", ""))
         )
-        cooked_products["director"] = handleDirectors(
+        cooked_products["directors"] = handleDirectors(
             raw_product.get("Director", raw_product.get("Directors", ""))
         )
         cooked_products["actors"] = handleActors(
