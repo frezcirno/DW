@@ -16,7 +16,7 @@ def parse(pid, path):
 
     tree = etree.parse(path, parser)
 
-    if "Prime Video" in tree.xpath("//title/text()")[0]:
+    if len(tree.xpath('//a[@class="av-retail-m-nav-text-logo"]')) > 0:
         ## Title
         pi["title"] = tree.xpath('//h1[@data-automation-id="title"]/text()')[0]
 
@@ -55,6 +55,10 @@ def parse(pid, path):
             for otherFormat in otherFormats
         ]
 
+        ## rating 
+        pi["star"] = tree.xpath(
+            '//a[@data-automation-id="customer-review-badge"]/@aria-label'
+        )[0]
     else:
         ## Title
         pi["title"] = tree.xpath('//span[@id="productTitle"]/text()')[0].strip()
@@ -96,6 +100,12 @@ def parse(pid, path):
             re.search("/dp/(\w+)/", additionalOption).group(1)
             for additionalOption in additionalOptions
         ]
+
+        ## rating 
+        pi["star"] = tree.xpath(
+            '//div[@id="detailBullets_feature_div"]//i[contains(@class, "a-icon-star")]/span[@class="a-icon-alt"]/text()'
+        )[0]
+    
     return pi
 
 

@@ -37,7 +37,7 @@ def worker(index, queue):
     ) as err:
         while True:
             pid, path = queue.get(True)
-            # print(f"Get {pid}")
+            print(f"Get {pid}")
             try:
                 pi = parse(pid, path)
                 out.write(json.dumps(pi) + "\n")
@@ -61,7 +61,7 @@ def init():
                 os.remove(f"{i}.jl")
 
         with open("task.txt", "w") as fp:
-            for p, d, f in os.walk("D:/Code/etl/data/html/"):
+            for p, d, f in os.walk("D:/Code/etl/data/rest/"):
                 print(f"Walk in {p}")
                 for _f in f:
                     pid = _f[:-5]
@@ -77,13 +77,18 @@ def init():
                 for line in log:
                     finished.append(line.strip())
 
+    missing_ratings = set()
+    with open("missing_rating.txt") as missing_rating:
+        for line in missing_rating:
+            missing_ratings.add(line.strip())
+
     with open("task.txt") as task:
         for line in task:
             line = line.split()
             pid = line[0]
             p = line[1]
 
-            if pid not in finished:
+            if pid not in finished and pid in missing_ratings:
                 tasks.append((pid, p))
 
     return tasks

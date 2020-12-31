@@ -1,0 +1,6 @@
+ujson
+flask
+flask_cors
+pyhive
+py2neo
+mysql_connector

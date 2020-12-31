@@ -1,0 +1,1 @@
+scp *.csv katty.top:/var/lib/mysql/
