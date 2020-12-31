@@ -35,7 +35,7 @@ with open("data/extract/patch_rating2.jl") as patch_rating2:
             continue
         raw_product = raw_products[pid]
         rating = j.get("star", "0")
-        rating = re.findall(".*(\d+(?:.\d+)?) out of 5 stars(?: by (\d+).*?)?", rating)[0]
+        rating = re.findall(".*?(\d+(?:\.\d+)?) out of 5 stars(?: by (\d+).*?)?", rating)[0]
         raw_product["rating_score"] = rating[0] or "0"
         raw_product["rating_count"] = rating[1] or "0"
         raw_product["rating5_ratio"] = 0

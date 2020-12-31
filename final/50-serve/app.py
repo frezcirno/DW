@@ -28,21 +28,20 @@ app = Flask(__name__)
 CORS(app)
 
 """
-按照时间进行查询及统计（例如XX年有多少电影，XX年XX月有多少电影，XX年XX季度有多少电影，周二新增多少电影等）
-按照电影名称进行查询及统计（例如 XX电影共有多少版本等）
-按照导演进行查询及统计（例如 XX导演共有多少电影等）
-按照演员进行查询及统计（例如 XX演员主演多少电影，XX演员参演多少电影等）
 按照演员和导演的关系进行查询及统计（例如经常合作的演员有哪些，经常合作的导演和演员有哪些）
-按照电影类别进行查询及统计（例如 Action电影共有多少，Adventure电影共有多少等）
-按照用户评价进行查询及统计（例如用户评分3分以上的电影有哪些，用户评价中有正面评价的电影有哪些等）
 按照上述条件的组合查询和统计
 """
 
 season2months = {"1": [1, 2, 3], "2": [4, 5, 6], "3": [7, 8, 9], "4": [10, 11, 12]}
 
 
-@app.route("/api/search")
-def search():
+@app.route("/api/product")
+def product():
+    """
+    按照时间进行查询及统计（例如XX年有多少电影，XX年XX月有多少电影，XX年XX季度有多少电影，周二新增多少电影等）
+    按照电影名称进行查询及统计（例如 XX电影共有多少版本等）
+    按照用户评价进行查询及统计（例如用户评分3分以上的电影有哪些，用户评价中有正面评价的电影有哪些等）
+    """
     where = []
     param = []
 
@@ -76,7 +75,87 @@ def search():
         where.append("(title like %s)")
         param.append(f"%{title}%")
 
+    rating = request.args.get("rating", 0)
+    if rating:
+        where.append("rating >= %s")
+        param.append(rating)
+
     sql = "select * from product where " + " and ".join(where)
+
+    print(sql)
+    print(param)
+
+    cursor.execute(sql, param)
+    res = cursor.fetchall()
+    return {"count": len(res), "data": res}
+
+
+@app.route("/api/director")
+def director():
+    """
+    按照导演进行查询及统计（例如 XX导演共有多少电影等）
+    """
+    where = []
+    param = []
+
+    name = request.args.get("name", 0)
+    if name:
+        where.append("(name like %s)")
+        param.append(f"%{name}%")
+
+    sql = "select * from product natural join product_director where " + " and ".join(
+        where
+    )
+
+    print(sql)
+    print(param)
+
+    cursor.execute(sql, param)
+    res = cursor.fetchall()
+    return {"count": len(res), "data": res}
+
+
+@app.route("/api/actor")
+def actor():
+    """
+    按照演员进行查询及统计（例如 XX演员主演多少电影，XX演员参演多少电影等）
+    """
+    where = []
+    param = []
+
+    name = request.args.get("name", 0)
+    if name:
+        where.append("(name like %s)")
+        param.append(f"%{name}%")
+
+    sql = "select * from product natural join product_actor where " + " and ".join(
+        where
+    )
+
+    print(sql)
+    print(param)
+
+    cursor.execute(sql, param)
+    res = cursor.fetchall()
+    return {"count": len(res), "data": res}
+
+
+@app.route("/api/genre")
+def genre():
+    """
+    按照电影类别进行查询及统计（例如 Action电影共有多少，Adventure电影共有多少等）
+    """
+    where = []
+    param = []
+
+    genre = request.args.get("genre", 0)
+    if genre:
+        where.append("(genre like %s)")
+        param.append(f"%{genre}%")
+
+    sql = "select * from product natural join product_genres where " + " and ".join(
+        where
+    )
 
     print(sql)
     print(param)
