@@ -254,7 +254,7 @@ with open("product.csv", "w", encoding="utf-8", newline="") as product:
     for pid in tqdm.tqdm(all_cooked, desc="product"):
         data = all_cooked[pid]
         y, m, d = map(int, data["release"].split("-"))
-        weekday = datetime(y, m, d).weekday() if y and m and d else 0
+        weekday = datetime(y, m, d).weekday()+1 if y and m and d else 0
         product.writerow(
             [
                 pid,
