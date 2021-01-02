@@ -165,12 +165,12 @@ def init():
         os.mkdir("extract_logs")
 
         with open("task.txt", "w") as fp:
-            for p, d, f in os.walk("D:/Code/etl/data/html"):
+            for p, d, f in os.walk("D:/Code/etl/data/rest"):
                 print(f"Walk in {p}")
                 for _f in f:
                     pid = _f[:-5]
                     fp.write(pid + " " + os.path.join(p, _f) + "\n")
-            for p, d, f in os.walk("D:/Code/etl/data/rest"):
+            for p, d, f in os.walk("D:/Code/etl/data/html"):
                 print(f"Walk in {p}")
                 for _f in f:
                     pid = _f[:-5]
