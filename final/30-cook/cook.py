@@ -1,3 +1,4 @@
+from os import environ
 import re
 import csv
 import tqdm
@@ -26,7 +27,6 @@ with open("data/extract/patch_rating.txt") as patch_rating2:
         raw_product["rating2_ratio"] = int(stars.get("2 star", "0%")[:-1]) / 100
         raw_product["rating1_ratio"] = int(stars.get("1 star", "0%")[:-1]) / 100
 
-
 with open("data/extract/patch_rating2.jl") as patch_rating2:
     for line in tqdm.tqdm(patch_rating2, desc="patch_rating2"):
         j = json.loads(line)
@@ -35,7 +35,9 @@ with open("data/extract/patch_rating2.jl") as patch_rating2:
             continue
         raw_product = raw_products[pid]
         rating = j.get("star", "0")
-        rating = re.findall(".*?(\d+(?:\.\d+)?) out of 5 stars(?: by (\d+).*?)?", rating)[0]
+        rating = re.findall(
+            ".*?(\d+(?:\.\d+)?) out of 5 stars(?: by (\d+).*?)?", rating
+        )[0]
         raw_product["rating_score"] = rating[0] or "0"
         raw_product["rating_count"] = rating[1] or "0"
         raw_product["rating5_ratio"] = 0
@@ -43,7 +45,6 @@ with open("data/extract/patch_rating2.jl") as patch_rating2:
         raw_product["rating3_ratio"] = 0
         raw_product["rating2_ratio"] = 0
         raw_product["rating1_ratio"] = 0
-
 
 with open("missing_rating.txt", "w") as missing_rating:
     for pid in raw_products:
@@ -59,6 +60,40 @@ with open("data/extract/patch_time.txt") as patch_time:
             continue
         raw_product = raw_products[pid]
         raw_product["Year"] = j.get("ShowTime", "0")
+
+snap_data = []
+with open("data/snap/movies.txt", encoding="iso-8859-1") as snap:
+    last_line = None
+    review_data = []
+    for line in tqdm.tqdm(snap, desc="snap"):
+        line = line.strip()
+        if line.startswith("product/productId"):
+            if review_data:
+                snap_data.append(review_data)
+            review_data = []
+            productId = line.split(":")[1].strip()
+            review_data.append(productId)
+        elif line.startswith("review/userId"):
+            userId = line.split(":")[1].strip(" #oc-")
+            review_data.append(userId)
+        elif line.startswith("review/profileName"):
+            profileName = (
+                line.split(":")[1]
+                .strip()
+                .strip("/\\")
+                .replace('"', "")
+                .replace("'", "")
+            )
+            review_data.append(profileName)
+        elif line.startswith("review/score"):
+            score = line.split(":")[1].strip()
+            review_data.append(score)
+        elif not line.startswith("review/") and not line.startswith("product/"):
+            if last_line.startswith("review/profileName"):
+                review_data[-1] += line
+
+        last_line = line
+    snap_data.append(review_data)
 
 
 all_movies = set()
@@ -254,7 +289,7 @@ with open("product.csv", "w", encoding="utf-8", newline="") as product:
     for pid in tqdm.tqdm(all_cooked, desc="product"):
         data = all_cooked[pid]
         y, m, d = map(int, data["release"].split("-"))
-        weekday = datetime(y, m, d).weekday()+1 if y and m and d else 0
+        weekday = datetime(y, m, d).weekday() + 1 if y and m and d else 0
         product.writerow(
             [
                 pid,
@@ -270,3 +305,25 @@ with open("product.csv", "w", encoding="utf-8", newline="") as product:
             ]
         )
 
+all_review_user = set()
+with open("user.csv", "w", encoding="utf-8", newline="") as user:
+    user = csv.writer(user)
+    user.writerow(["userId", "profileName"])
+    for asin, userId, profileName, score in tqdm.tqdm(snap_data, desc="snap-user"):
+        if userId in all_review_user:
+            continue
+        all_review_user.add(userId)
+        user.writerow([userId, profileName])
+
+all_user_product = set()
+with open("user_product.csv", "w", encoding="utf-8", newline="") as user_product:
+    user_product = csv.writer(user_product)
+    user_product.writerow(["asin", "userId", "score"])
+    for asin, userId, profileName, score in tqdm.tqdm(
+        snap_data, desc="snap-user_product"
+    ):
+        key = asin + userId
+        if key in all_user_product:
+            continue
+        all_user_product.add(key)
+        user_product.writerow([asin, userId, score])
