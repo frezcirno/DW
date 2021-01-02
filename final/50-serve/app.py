@@ -95,23 +95,26 @@ def mysql_search():
 
     director = request.args.get("director", 0)
     if director:
+        _from.add('product')
         _from.add('product_director')
         where.append("director = %s")
         param.append(director)
 
     actor = request.args.get("actor", 0)
     if actor:
+        _from.add('product')
         _from.add('product_actor')
         where.append("actor = %s")
         param.append(actor)
 
     genre = request.args.get("genre", 0)
     if genre:
+        _from.add('product')
         _from.add('product_genres')
         where.append("genre = %s")
         param.append(genre)
 
-    sql = "select *" + " from " + " natual join ".join(_from) + " where " + " and ".join(where)
+    sql = "select *" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
 
     print(sql)
     print(param)
@@ -163,7 +166,7 @@ def neo4j_product():
 
 
     def query(tx,y,m,d,season,weekday,title,rating):
-        tx.run(f"MATCH (p:Product) WHERE {} RETURN p",)
+        tx.run(f"MATCH (p:Product) WHERE  RETURN p",)
 
     with driver.session() as session:
         session.read_transaction(query,y,m,d,season,weekday,title,rating)
