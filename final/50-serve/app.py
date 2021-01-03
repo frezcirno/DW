@@ -159,7 +159,7 @@ def mysql_product():
     if genres:
         _from.add("product")
         _from.add("product_genres")
-        where.append(' and '.join(["genre = %s" for _ in genres]))
+        where.append(' or '.join(["genre = %s" for _ in genres]))
         param += genres
 
     # genre = request.args.get("genre", 0)
@@ -270,7 +270,7 @@ def mysql_movie():
     if genres:
         _from.add("product")
         _from.add("product_genres")
-        where.append(' and '.join(["genre = %s" for _ in genres]))
+        where.append(' or '.join(["genre = %s" for _ in genres]))
         param += genres
 
     # genre = request.args.getlist("genre", 0)
@@ -382,7 +382,7 @@ def neo4j_product():
 
     genres = request.args.getlist("genre[]")
     if genres:
-        stat = ' and '.join([f"g.genre = '{g}'" for g in genres])
+        stat = ' or '.join([f"g.genre = '{g}'" for g in genres])
         where.append(f"({stat})")
 
     # elif genre:
