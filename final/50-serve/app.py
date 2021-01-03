@@ -52,13 +52,22 @@ def neo4j_query(cypher, param=None):
 season2months = {"1": [1, 2, 3], "2": [4, 5, 6], "3": [7, 8, 9], "4": [10, 11, 12]}
 
 
-@app.route("/api/search/mysql/sql")
-def mysql_search_any():
+@app.route('/api/combine')
+def combine_product():
+    return {
+        'mysql': mysql_product(),
+        'neo4j': neo4j_product(),
+        'hive': {}
+    }
+
+
+@app.route("/api/mysql/sql")
+def mysql_any():
     sql = request.args.get("sql", "")
     return mysql_query(sql)
 
 
-@app.route("/api/search/mysql")
+@app.route("/api/mysql")
 def mysql_product():
     """
     按照时间进行查询及统计（例如XX年有多少电影，XX年XX月有多少电影，XX年XX季度有多少电影，周二新增多少电影等）
@@ -148,7 +157,8 @@ def mysql_product():
 
     offset = request.args.get("offset", 0)
 
-    sql = "select *" + " from " + " natural join ".join(_from) + " where " + " and ".join(where) + f" limit {offset},100"
+    sql = "select *" + " from " + " natural join ".join(_from) + \
+        " where " + " and ".join(where) + f" limit {offset},100"
 
     count_sql = (
         "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
@@ -159,11 +169,11 @@ def mysql_product():
     time = 1000 * (perf_counter() - start)
 
     count = mysql_query(count_sql, param)
-    
+
     return {"count": count[0]["num"], 'time': time, "data": res}
 
 
-@app.route("/api/search/neo4j/close")
+@app.route("/api/neo4j/close")
 def neo4j_close():
     """
     按照演员和导演的关系进行查询及统计（例如经常合作的演员有哪些，经常合作的导演和演员有哪些）
@@ -177,13 +187,13 @@ def neo4j_close():
     return {"count": len(query_result)}
 
 
-@app.route("/api/search/neo4j/sql")
+@app.route("/api/neo4j/sql")
 def neo4j_product_sql():
     cypher = request.args.get("cypher", 0)
     return neo4j_query(cypher)
 
 
-@app.route("/api/search/neo4j")
+@app.route("/api/neo4j")
 def neo4j_product():
     where = []
 
@@ -219,7 +229,7 @@ def neo4j_product():
     rating = request.args.get("rating", 0)
     if rating:
         where.append(f"p.rating >= '{rating}")
-        
+
     skip = request.args.get("skip", 0)
 
     cypher = f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN p skip {skip} limit 20"
