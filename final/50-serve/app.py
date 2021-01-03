@@ -24,7 +24,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-def mysql_query(sql, param):
+def mysql_query(sql, param=None):
     try:
         cursor.execute(sql, param)
     except mysql.connector.errors.OperationalError:
@@ -51,6 +51,12 @@ def neo4j_query(cypher, param=None):
 """
 
 season2months = {"1": [1, 2, 3], "2": [4, 5, 6], "3": [7, 8, 9], "4": [10, 11, 12]}
+
+
+@app.route("/api/search/mysql/sql")
+def mysql_search_any():
+    sql = request.args.get("sql", "")
+    return mysql_query(sql)
 
 
 @app.route("/api/search/mysql")
@@ -143,12 +149,13 @@ def mysql_search():
         + " natural join ".join(_from)
         + " where "
         + " and ".join(where)
-        + f" limit {offset}, 20"
     )
+    count_sql = "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
     print(param)
 
     res = mysql_query(sql, param)
-    return {"count": len(res), "data": res}
+    count = mysql_query(count_sql, param)
+    return {"count": count[0]['num'], "data": res}
 
 
 @app.route("/api/search/neo4j/close")
