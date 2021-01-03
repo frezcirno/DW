@@ -15,7 +15,7 @@ cnx = mysql.connector.connect(
         "password": "warehouse",
     }
 )
-cursor = cnx.cursor()
+cursor = cnx.cursor(buffered=True)
 
 driver = GraphDatabase.driver("neo4j://katty.top:7687", auth=("neo4j", "warehouse"))
 session = driver.session()
@@ -23,8 +23,28 @@ session = driver.session()
 app = Flask(__name__)
 CORS(app)
 
+
+def mysql_query(sql, param):
+    try:
+        cursor.execute(sql, param)
+    except mysql.connector.errors.OperationalError:
+        cnx.reconnect()
+    finally:
+        cursor.execute(sql, param)
+    return cursor.fetchall()
+
+
+def neo4j_query(cypher, param=None):
+    def query(tx):
+        res = []
+        for result in tx.run(cypher, param):
+            res.append(result.values())
+        return res
+
+    return session.read_transaction(query)
+
+
 """
-按照演员和导演的关系进行查询及统计（例如经常合作的演员有哪些，经常合作的导演和演员有哪些）
 按照上述条件的组合查询和统计
 """
 
@@ -115,37 +135,29 @@ def mysql_search():
         where.append("genre = %s")
         param.append(genre)
 
-    sql = (
-        "select *"
+    print(
+        sql := "select *"
         + " from "
         + " natural join ".join(_from)
         + " where "
         + " and ".join(where)
     )
-
-    print(sql)
     print(param)
 
-    cursor.execute(sql, param)
-    res = cursor.fetchall()
+    res = mysql_query(sql, param)
     return {"count": len(res), "data": res}
-
-
-def neo4j_query(cypher, param=None):
-    def query(tx):
-        res = []
-        for result in tx.run(cypher, param):
-            res.append(result.values())
-        return res
-    return session.read_transaction(query)
 
 
 @app.route("/api/search/neo4j/close")
 def neo4j_close():
+    """
+    按照演员和导演的关系进行查询及统计（例如经常合作的演员有哪些，经常合作的导演和演员有哪些）
+    """
     count = request.args.get("count", 100)
 
     query_result = neo4j_query(
-        f"MATCH path = (a:Actor)--(p:Product)--(d:Director) WITH a, d, COUNT(*) AS num ORDER BY num DESC RETURN a,d,num limit {count}")
+        f"MATCH path = (a:Actor)--(p:Product)--(d:Director) WITH a, d, COUNT(*) AS num ORDER BY num DESC RETURN a,d,num limit {count}"
+    )
 
     return {"count": len(query_result)}
 
@@ -189,7 +201,7 @@ def neo4j_product():
 
     res = neo4j_query(cypher)
 
-    return {'len': len(res)}
+    return {"len": len(res)}
 
 
 if __name__ == "__main__":
