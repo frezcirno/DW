@@ -54,10 +54,16 @@ season2months = {"1": [1, 2, 3], "2": [4, 5, 6], "3": [7, 8, 9], "4": [10, 11, 1
 
 @app.route('/api/combine')
 def combine_product():
+    mysql = mysql_product()
+    neo4j = neo4j_product()
+    hive = hive_product()
+
     return {
-        'mysql': mysql_product(),
-        'neo4j': neo4j_product(),
-        'hive': {}
+        'data': mysql['data'],
+        'count': mysql['count'],
+        'mysql': mysql['time'],
+        'neo4j': neo4j['time'],
+        'hive': hive['time']
     }
 
 
@@ -120,7 +126,7 @@ def mysql_product():
     title = request.args.get("title", 0)
     if title:
         _from.add("product")
-        where.append(f"(title like '{title}')")
+        where.append(f"(title like '%{title}%')")
 
     rating = request.args.get("rating", 0)
     if rating:
@@ -188,7 +194,7 @@ def neo4j_close():
 
 
 @app.route("/api/neo4j/sql")
-def neo4j_product_sql():
+def neo4j_any():
     cypher = request.args.get("cypher", 0)
     return neo4j_query(cypher)
 
@@ -246,6 +252,11 @@ def neo4j_product():
 
     res = [dict(zip(row[0].keys(), row[0].values())) for row in res]
     return {"count": res_count[0][0], 'time': time, "data": res}
+
+
+@app.route('/api/hive')
+def hive_product():
+    return {'count': 0, 'data': [], 'time': 0}
 
 
 if __name__ == "__main__":
