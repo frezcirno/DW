@@ -31,7 +31,9 @@ def mysql_query(sql, param):
         cnx.reconnect()
     finally:
         cursor.execute(sql, param)
-    return cursor.fetchall()
+
+    fields = list(map(lambda x: x[0], cursor.description))
+    return [dict(zip(fields, row)) for row in cursor.fetchall()]
 
 
 def neo4j_query(cypher, param=None):
@@ -68,19 +70,19 @@ def mysql_search():
     y = request.args.get("y", 0)
     if y:
         _from.add("product")
-        where.append("(y=%s)")
+        where.append("y=%s")
         param.append(y)
 
     m = request.args.get("m", 0)
     if m:
         _from.add("product")
-        where.append("(m=%s)")
+        where.append("m=%s")
         param.append(m)
 
     d = request.args.get("d", 0)
     if d:
         _from.add("product")
-        where.append("(d=%s)")
+        where.append("d=%s")
         param.append(d)
 
     season = request.args.get("season", 0)
@@ -92,20 +94,18 @@ def mysql_search():
     weekday = request.args.get("weekday", 0)
     if weekday:
         _from.add("product")
-        where.append("(weekday=%s)")
+        where.append("weekday=%s")
         param.append(weekday)
 
     title = request.args.get("title", 0)
     if title:
         _from.add("product")
-        where.append("(title like %s)")
-        param.append(f"%{title}%")
+        where.append(f"(title like '{title}')")
 
     rating = request.args.get("rating", 0)
     if rating:
         _from.add("product")
-        where.append("rating >= %s")
-        param.append(rating)
+        where.append(f"rating >= {rating}")
 
     director = request.args.get("director", 0)
     if director:
@@ -135,12 +135,15 @@ def mysql_search():
         where.append("genre = %s")
         param.append(genre)
 
+    offset = request.args.get("offset", 0)
+
     print(
         sql := "select *"
         + " from "
         + " natural join ".join(_from)
         + " where "
         + " and ".join(where)
+        + f" limit {offset}, 20"
     )
     print(param)
 
