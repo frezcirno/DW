@@ -1,5 +1,4 @@
-from typing import AsyncIterable
-from neo4j.work import transaction
+from time import perf_counter
 import ujson as json
 import mysql.connector
 import pyhive
@@ -60,7 +59,7 @@ def mysql_search_any():
 
 
 @app.route("/api/search/mysql")
-def mysql_search():
+def mysql_product():
     """
     按照时间进行查询及统计（例如XX年有多少电影，XX年XX月有多少电影，XX年XX季度有多少电影，周二新增多少电影等）
     按照电影名称进行查询及统计（例如 XX电影共有多少版本等）
@@ -103,6 +102,12 @@ def mysql_search():
         where.append("weekday=%s")
         param.append(weekday)
 
+    asin = request.args.get("asin", 0)
+    if asin:
+        _from.add("product")
+        where.append("asin=%s")
+        param.append(asin)
+
     title = request.args.get("title", 0)
     if title:
         _from.add("product")
@@ -143,19 +148,19 @@ def mysql_search():
 
     offset = request.args.get("offset", 0)
 
-    print(
-        sql := "select *"
-        + " from "
-        + " natural join ".join(_from)
-        + " where "
-        + " and ".join(where)
-    )
-    count_sql = "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
-    print(param)
+    sql = "select *" + " from " + " natural join ".join(_from) + " where " + " and ".join(where) + f" limit {offset},100"
 
+    count_sql = (
+        "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
+    )
+
+    start = perf_counter()
     res = mysql_query(sql, param)
+    time = 1000 * (perf_counter() - start)
+
     count = mysql_query(count_sql, param)
-    return {"count": count[0]['num'], "data": res}
+    
+    return {"count": count[0]["num"], 'time': time, "data": res}
 
 
 @app.route("/api/search/neo4j/close")
@@ -170,6 +175,12 @@ def neo4j_close():
     )
 
     return {"count": len(query_result)}
+
+
+@app.route("/api/search/neo4j/sql")
+def neo4j_product_sql():
+    cypher = request.args.get("cypher", 0)
+    return neo4j_query(cypher)
 
 
 @app.route("/api/search/neo4j")
@@ -201,17 +212,30 @@ def neo4j_product():
     if title:
         where.append(f"p.title =~ '.*{title}.*'")
 
+    asin = request.args.get("asin", 0)
+    if asin:
+        where.append(f"p.asin = '{asin}'")
+
     rating = request.args.get("rating", 0)
     if rating:
         where.append(f"p.rating >= '{rating}")
+        
+    skip = request.args.get("skip", 0)
 
-    cypher = f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN p"
+    cypher = f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN p skip {skip} limit 20"
+
+    cypher_count = f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN count(p)"
 
     print(cypher)
 
+    start = perf_counter()
     res = neo4j_query(cypher)
+    time = 1000 * (perf_counter() - start)
 
-    return {"len": len(res)}
+    res_count = neo4j_query(cypher_count)
+
+    res = [dict(zip(row[0].keys(), row[0].values())) for row in res]
+    return {"count": res_count[0][0], 'time': time, "data": res}
 
 
 if __name__ == "__main__":
