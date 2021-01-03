@@ -131,7 +131,7 @@ def mysql_search():
     return {"count": len(res), "data": res}
 
 
-def neo4j_query(cypher, param = None):
+def neo4j_query(cypher, param=None):
     def query(tx):
         res = []
         for result in tx.run(cypher, param):
@@ -152,49 +152,44 @@ def neo4j_close():
 
 @app.route("/api/search/neo4j")
 def neo4j_product():
-    where = ""
-    param = []
+    where = []
 
     y = request.args.get("y", 0)
     if y:
-        where.append("(y=%s)")
-        param.append(y)
+        where.append(f"p.y='{y}'")
 
     m = request.args.get("m", 0)
     if m:
-        where.append("(m=%s)")
-        param.append(m)
+        where.append(f"p.m='{m}'")
 
     d = request.args.get("d", 0)
     if d:
-        where.append("(d=%s)")
-        param.append(d)
+        where.append(f"p.d='{d}'")
 
     season = request.args.get("season", 0)
     if season:
-        where.append("(m=%s or m=%s or m=%s)")
-        param += season2months[season]
+        months = season2months[season]
+        where.append(f"p.m='{months[0]}' or m='{months[1]}' or m='{months[2]}'")
 
     weekday = request.args.get("weekday", 0)
     if weekday:
-        where.append("(weekday=%s)")
-        param.append(weekday)
+        where.append(f"p.weekday='{weekday}'")
 
     title = request.args.get("title", 0)
     if title:
-        where.append("(title like %s)")
-        param.append(f"%{title}%")
+        where.append(f"p.title =~ '.*{title}.*'")
 
     rating = request.args.get("rating", 0)
     if rating:
-        where.append("rating >= %s")
-        param.append(rating)
+        where.append(f"p.rating >= '{rating}")
 
-    def query(tx):
-        tx.run(f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN p", param)
+    cypher = f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN p"
 
-    with driver.session() as session:
-        session.read_transaction(query, y, m, d, season, weekday, title, rating)
+    print(cypher)
+
+    res = neo4j_query(cypher)
+
+    return {'len': len(res)}
 
 
 if __name__ == "__main__":
