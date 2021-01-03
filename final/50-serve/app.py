@@ -220,6 +220,10 @@ def neo4j_product():
         months = season2months[season]
         where.append(f"p.m='{months[0]}' or m='{months[1]}' or m='{months[2]}'")
 
+    asin = request.args.get("asin", 0)
+    if asin:
+        where.append(f"p.asin='{asin}'")
+
     weekday = request.args.get("weekday", 0)
     if weekday:
         where.append(f"p.weekday='{weekday}'")
@@ -228,19 +232,31 @@ def neo4j_product():
     if title:
         where.append(f"p.title =~ '.*{title}.*'")
 
-    asin = request.args.get("asin", 0)
-    if asin:
-        where.append(f"p.asin = '{asin}'")
-
     rating = request.args.get("rating", 0)
     if rating:
-        where.append(f"p.rating >= '{rating}")
+        where.append(f"p.rating >= '{rating}'")
+
+    director = request.args.get("director", 0)
+    if director:
+        where.append(f"p.director >= '{director}'")
+
+    actor = request.args.get("actor", 0)
+    if actor:
+        where.append(f"a.actor = '{actor}'")
+
+    support_actor = request.args.get("support_actor", 0)
+    if support_actor:
+        where.append(f"s.support_actor = '{support_actor}'")
+
+    genre = request.args.get("genre", 0)
+    if genre:
+        where.append(f"g.genre = '{genre}'")
 
     skip = request.args.get("skip", 0)
 
-    cypher = f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN p skip {skip} limit 20"
+    cypher = f"MATCH (p:Product)-[pd]-(d:Director), (p)-[pa]-(a:Actor), (p)-[ps]-(s:Support_actor), (p)-[pg]-(g:Genre) WHERE {' and '.join(where)} RETURN p skip {skip} limit 20"
 
-    cypher_count = f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN count(p)"
+    cypher_count = f"MATCH (p:Product)-[pd]-(d:Director), (p)-[pa]-(a:Actor), (p)-[ps]-(s:Support_actor), (p)-[pg]-(g:Genre) WHERE {' and '.join(where)} RETURN count(p)"
 
     print(cypher)
 
