@@ -1,3 +1,5 @@
+from typing import AsyncIterable
+from neo4j.work import transaction
 import ujson as json
 import mysql.connector
 import pyhive
@@ -16,15 +18,7 @@ cnx = mysql.connector.connect(
 cursor = cnx.cursor()
 
 driver = GraphDatabase.driver("neo4j://katty.top:7687", auth=("neo4j", "warehouse"))
-
-# neo = py2neo.Connection(
-#     {
-#         "host": "localhost",
-#         "database": "warehouse",
-#         "username": "warehouse",
-#         "password": "warehouse",
-#     }
-# )
+session = driver.session()
 
 app = Flask(__name__)
 CORS(app)
@@ -53,68 +47,81 @@ def mysql_search():
 
     y = request.args.get("y", 0)
     if y:
-        _from.add('product')
+        _from.add("product")
         where.append("(y=%s)")
         param.append(y)
 
     m = request.args.get("m", 0)
     if m:
-        _from.add('product')
+        _from.add("product")
         where.append("(m=%s)")
         param.append(m)
 
     d = request.args.get("d", 0)
     if d:
-        _from.add('product')
+        _from.add("product")
         where.append("(d=%s)")
         param.append(d)
 
     season = request.args.get("season", 0)
     if season:
-        _from.add('product')
+        _from.add("product")
         where.append("(m=%s or m=%s or m=%s)")
         param += season2months[season]
 
     weekday = request.args.get("weekday", 0)
     if weekday:
-        _from.add('product')
+        _from.add("product")
         where.append("(weekday=%s)")
         param.append(weekday)
 
     title = request.args.get("title", 0)
     if title:
-        _from.add('product')
+        _from.add("product")
         where.append("(title like %s)")
         param.append(f"%{title}%")
 
     rating = request.args.get("rating", 0)
     if rating:
-        _from.add('product')
+        _from.add("product")
         where.append("rating >= %s")
         param.append(rating)
 
     director = request.args.get("director", 0)
     if director:
-        _from.add('product')
-        _from.add('product_director')
+        _from.add("product")
+        _from.add("product_director")
         where.append("director = %s")
         param.append(director)
 
     actor = request.args.get("actor", 0)
     if actor:
-        _from.add('product')
-        _from.add('product_actor')
+        _from.add("product")
+        _from.add("product_actor")
         where.append("actor = %s")
         param.append(actor)
 
+    support_actor = request.args.get("support_actor", 0)
+    if support_actor:
+        _from.add("product")
+        _from.add("product_support_actor")
+        where.append("support_actor = %s")
+        param.append(support_actor)
+
     genre = request.args.get("genre", 0)
     if genre:
-        _from.add('product')
-        _from.add('product_genres')
+        _from.add("product")
+        _from.add("product_genres")
         where.append("genre = %s")
         param.append(genre)
 
-    sql = "select *" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
+    sql = (
+        "select *"
+        + " from "
+        + " natural join ".join(_from)
+        + " where "
+        + " and ".join(where)
+    )
 
     print(sql)
     print(param)
@@ -122,6 +129,25 @@ def mysql_search():
     cursor.execute(sql, param)
     res = cursor.fetchall()
     return {"count": len(res), "data": res}
+
+
+def neo4j_query(cypher, param = None):
+    def query(tx):
+        res = []
+        for result in tx.run(cypher, param):
+            res.append(result.values())
+        return res
+    return session.read_transaction(query)
+
+
+@app.route("/api/search/neo4j/close")
+def neo4j_close():
+    count = request.args.get("count", 100)
+
+    query_result = neo4j_query(
+        f"MATCH path = (a:Actor)--(p:Product)--(d:Director) WITH a, d, COUNT(*) AS num ORDER BY num DESC RETURN a,d,num limit {count}")
+
+    return {"count": len(query_result)}
 
 
 @app.route("/api/search/neo4j")
@@ -164,12 +190,11 @@ def neo4j_product():
         where.append("rating >= %s")
         param.append(rating)
 
-
-    def query(tx,y,m,d,season,weekday,title,rating):
-        tx.run(f"MATCH (p:Product) WHERE  RETURN p",)
+    def query(tx):
+        tx.run(f"MATCH (p:Product) WHERE {' and '.join(where)} RETURN p", param)
 
     with driver.session() as session:
-        session.read_transaction(query,y,m,d,season,weekday,title,rating)
+        session.read_transaction(query, y, m, d, season, weekday, title, rating)
 
 
 if __name__ == "__main__":
