@@ -330,7 +330,6 @@ def hive_product():
     """
     _from = set()
     where = []
-    param = []
     fromStr = "product pr"
 
     y = request.args.get("y", 0)
@@ -399,6 +398,92 @@ def hive_product():
     count = hive_query(count_sql)
 
     return {"count": count[0]["num"], 'time': time, "data": res}
+
+
+@app.route('/api/hive/movie')
+def hive_movie():
+    """
+    按照时间进行查询及统计（例如XX年有多少电影，XX年XX月有多少电影，XX年XX季度有多少电影，周二新增多少电影等）
+    按照电影名称进行查询及统计（例如 XX电影共有多少版本等）
+    按照用户评价进行查询及统计（例如用户评分3分以上的电影有哪些，用户评价中有正面评价的电影有哪些等）
+    按照导演进行查询及统计（例如 XX导演共有多少电影等）
+    按照演员进行查询及统计（例如 XX演员主演多少电影，XX演员参演多少电影等）
+    按照电影类别进行查询及统计（例如 Action电影共有多少，Adventure电影共有多少等）
+    """
+    _from = set()
+    where = []
+    fromStr = "product pr"
+
+    y = request.args.get("y", 0)
+    if y:
+        where.append(f"y={y}")
+
+    m = request.args.get("m", 0)
+    if m:
+        where.append(f"m={m}")
+
+    d = request.args.get("d", 0)
+    if d:
+        where.append(f"d={d}")
+
+    season = request.args.get("season", 0)
+    if season:
+        where.append(f"(m={season2months[season][0]} or m={season2months[season][1]} or m={season2months[season][2]})")
+
+    weekday = request.args.get("weekday", 0)
+    if weekday:
+        where.append(f"weekday={weekday}")
+
+    asin = request.args.get("asin", 0)
+    if asin:
+        where.append(f"asin='{asin}'")
+
+    title = request.args.get("title", 0)
+    if title:
+        where.append(f"(title like '%{title}%')")
+
+    rating = request.args.get("rating", 0)
+    if rating:
+        where.append(f"rating >= {rating}")
+
+    director = request.args.get("director", 0)
+    if director:
+        fromStr += " join product_director pd on pr.asin = pd.asin "
+        where.append(f"director = '{director}'")
+
+    actor = request.args.get("actor", 0)
+    if actor:
+        fromStr += " join product_actor pa on pr.asin = pa.asin "
+        where.append(f"actor = '{actor}'")
+
+    support_actor = request.args.get("support_actor", 0)
+    if support_actor:
+        fromStr += " join product_support_actor psa on pr.asin = psa.asin "
+        where.append(f"support_actor = '{support_actor}'")
+
+    genres = request.args.getlist("genre[]")
+    if genres:
+        fromStr += " join product_genres pg on pr.asin = pg.asin "
+        where.append(' or '.join([f"genre = '{g}'" for g in genres]))
+
+    offset = request.args.get("offset", 0)
+
+    sql = "select pr.movie from " + fromStr + \
+          " where " + " and ".join(where) + f" limit {offset}, 2"
+
+    sql = f"select * from product where movie in ({sql})"
+
+    try:
+        start = perf_counter()
+        res = hive_query(sql)
+        time = 1000 * (perf_counter() - start)
+        if len(res) > 1:
+            raise Exception()
+    except Exception:
+        res = []
+        time = 0
+
+    return {"count": len(res), 'time': time, "data": res}
 
 
 @app.route("/api/neo4j/relation")
