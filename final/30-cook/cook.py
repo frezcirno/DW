@@ -11,21 +11,56 @@ with open("data/extract/movie.jl") as movie:
         j = json.loads(line)
         raw_products[j["pid"]] = j
 
+with open("data/extract/movie1.jl") as movie1:
+    for line in tqdm.tqdm(movie1, desc="patch movie1"):
+        j = json.loads(line)
+        pid = j["pid"]
+        if pid not in raw_products:
+            continue
+        raw_product = raw_products[pid]
+        if "rating_score" not in raw_product or raw_product["rating_score"] == "0":
+            raw_points = j.get("Points", "0 out of 5 stars")
+            rating = re.findall(
+                ".*?(\d+(?:\.\d+)?) out of 5 stars(?: by (\d+).*?)?", raw_points
+            )[0][0]
+            raw_product["rating_score"] = rating
+        if "rating_count" not in raw_product or raw_product["rating_count"] == "0":
+            raw_product["rating_count"] = j.get("PointPersonNumber", "0 ratings")[:-8] or '0'
+        stars = j.get("Stars", {})
+        if "rating5_ratio" not in raw_product or raw_product["rating5_ratio"] == 0:
+            raw_product["rating5_ratio"] = int(stars.get("5 star", "0%")[:-1]) / 100
+        if "rating4_ratio" not in raw_product or raw_product["rating4_ratio"] == 0:
+            raw_product["rating4_ratio"] = int(stars.get("4 star", "0%")[:-1]) / 100
+        if "rating3_ratio" not in raw_product or raw_product["rating3_ratio"] == 0:
+            raw_product["rating3_ratio"] = int(stars.get("3 star", "0%")[:-1]) / 100
+        if "rating2_ratio" not in raw_product or raw_product["rating2_ratio"] == 0:
+            raw_product["rating2_ratio"] = int(stars.get("2 star", "0%")[:-1]) / 100
+        if "rating1_ratio" not in raw_product or raw_product["rating1_ratio"] == 0:
+            raw_product["rating1_ratio"] = int(stars.get("1 star", "0%")[:-1]) / 100
+
+
 with open("data/extract/patch_rating.txt") as patch_rating2:
-    for line in tqdm.tqdm(patch_rating2, desc="patch_rating"):
+    for line in tqdm.tqdm(patch_rating2, desc="patch_rating2"):
         j = json.loads(line)
         pid = j["id"]
         if pid not in raw_products:
             continue
         raw_product = raw_products[pid]
-        raw_product["rating_score"] = j.get("Points", "0")
-        raw_product["rating_count"] = j.get("PointPersonNumber", "0")
+        if "rating_score" not in raw_product or raw_product["rating_score"] == "0":
+            raw_product["rating_score"] = j.get("Points", "0")
+        if "rating_count" not in raw_product or raw_product["rating_count"] == "0":
+            raw_product["rating_count"] = j.get("PointPersonNumber", "0 ratings")[:-8] or '0'
         stars = j.get("Stars", {})
-        raw_product["rating5_ratio"] = int(stars.get("5 star", "0%")[:-1]) / 100
-        raw_product["rating4_ratio"] = int(stars.get("4 star", "0%")[:-1]) / 100
-        raw_product["rating3_ratio"] = int(stars.get("3 star", "0%")[:-1]) / 100
-        raw_product["rating2_ratio"] = int(stars.get("2 star", "0%")[:-1]) / 100
-        raw_product["rating1_ratio"] = int(stars.get("1 star", "0%")[:-1]) / 100
+        if "rating5_ratio" not in raw_product or raw_product["rating5_ratio"] == 0:
+            raw_product["rating5_ratio"] = int(stars.get("5 star", "0%")[:-1]) / 100
+        if "rating4_ratio" not in raw_product or raw_product["rating4_ratio"] == 0:
+            raw_product["rating4_ratio"] = int(stars.get("4 star", "0%")[:-1]) / 100
+        if "rating3_ratio" not in raw_product or raw_product["rating3_ratio"] == 0:
+            raw_product["rating3_ratio"] = int(stars.get("3 star", "0%")[:-1]) / 100
+        if "rating2_ratio" not in raw_product or raw_product["rating2_ratio"] == 0:
+            raw_product["rating2_ratio"] = int(stars.get("2 star", "0%")[:-1]) / 100
+        if "rating1_ratio" not in raw_product or raw_product["rating1_ratio"] == 0:
+            raw_product["rating1_ratio"] = int(stars.get("1 star", "0%")[:-1]) / 100
 
 with open("data/extract/patch_rating2.jl") as patch_rating2:
     for line in tqdm.tqdm(patch_rating2, desc="patch_rating2"):
@@ -38,13 +73,10 @@ with open("data/extract/patch_rating2.jl") as patch_rating2:
         rating = re.findall(
             ".*?(\d+(?:\.\d+)?) out of 5 stars(?: by (\d+).*?)?", rating
         )[0]
-        raw_product["rating_score"] = rating[0] or "0"
-        raw_product["rating_count"] = rating[1] or "0"
-        raw_product["rating5_ratio"] = 0
-        raw_product["rating4_ratio"] = 0
-        raw_product["rating3_ratio"] = 0
-        raw_product["rating2_ratio"] = 0
-        raw_product["rating1_ratio"] = 0
+        if "rating_score" not in raw_product or raw_product["rating_score"] == "0":
+            raw_product["rating_score"] = rating[0] or "0"
+        # if "rating_count" not in raw_product or raw_product["rating_count"] == "0":
+        #     raw_product["rating_count"] = rating[1] or "0"
 
 with open("missing_rating.txt", "w") as missing_rating:
     for pid in raw_products:
@@ -188,6 +220,26 @@ def handleActors(actors):
     return list(res)
 
 
+all_supporting_actors = set()
+
+
+def handleSupportingActors(actors):
+    res = set()
+    aa = ""
+    for a in re.split(
+        "\r|\n|,|;|/| - |\\\\",
+        actors.replace(" and ", ",").replace(" And ", ",").replace(" AND ", ","),
+    ):
+        aa = a.strip()
+        if aa == "":
+            continue
+        if aa in res:
+            continue
+        all_supporting_actors.add(aa)
+        res.add(aa)
+    return list(res)
+
+
 all_directors = set()
 
 
@@ -226,6 +278,9 @@ with open("cooked.jl", "w", encoding="utf-8") as cooked:
         cooked_products["actors"] = handleActors(
             raw_product.get("Starring", raw_product.get("Actors", ""))
         )
+        cooked_products["Supporting actors"] = handleSupportingActors(
+            raw_product.get("Supporting actors", "")
+        )
         # TODO: Keyword里面可能有题材关键词
         cooked_products["genres"] = handleGenres(raw_product.get("Genres", ""))
         cooked_products["movie"] = parent[pid]
@@ -256,6 +311,16 @@ with open("product_actor.csv", "w", encoding="utf-8", newline="") as product_act
         data = all_cooked[pid]
         for actor in data["actors"]:
             product_actor.writerow([pid, actor])
+
+with open(
+    "product_support_actor.csv", "w", encoding="utf-8", newline=""
+) as product_support_actor:
+    product_support_actor = csv.writer(product_support_actor)
+    product_support_actor.writerow(["asin", "support_actor"])
+    for pid in tqdm.tqdm(all_cooked, desc="product_support_actor"):
+        data = all_cooked[pid]
+        for support_actor in data["Supporting actors"]:
+            product_support_actor.writerow([pid, support_actor])
 
 with open(
     "product_director.csv", "w", encoding="utf-8", newline=""

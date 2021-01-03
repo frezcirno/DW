@@ -15,8 +15,8 @@ def parseTime(time):
     return result
 
 
-with open("data/extract/total.jl", encoding="utf-8") as f, open(
-    "data/extract/movie.jl", "w", encoding="utf-8"
+with open("data/extract/final.jl", encoding="utf-8") as f, open(
+    "data/extract/movie1.jl", "w", encoding="utf-8"
 ) as fo:
     for line in f:
         jl = json.loads(line)
