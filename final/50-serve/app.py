@@ -610,9 +610,9 @@ def neo4j_product():
 
     skip = request.args.get("skip", 0)
 
-    cypher = f"MATCH (p:Product)-[pd]-(d:Director), (p)-[pa]-(a:Actor), (p)-[ps]-(s:Support_actor), (p)-[pg]-(g:Genre) WHERE {' and '.join(where)} RETURN p skip {skip} limit 20"
+    cypher = f"MATCH (p:Product)-[pd]-(d:Director), (p)-[pa]-(a:Actor), (p)-[ps]-(s:SupportActor), (p)-[pg]-(g:Genre) WHERE {' and '.join(where)} RETURN p skip {skip} limit 20"
 
-    cypher_count = f"MATCH (p:Product)-[pd]-(d:Director), (p)-[pa]-(a:Actor), (p)-[ps]-(s:Support_actor), (p)-[pg]-(g:Genre) WHERE {' and '.join(where)} RETURN count(p)"
+    cypher_count = f"MATCH (p:Product)-[pd]-(d:Director), (p)-[pa]-(a:Actor), (p)-[ps]-(s:SupportActor), (p)-[pg]-(g:Genre) WHERE {' and '.join(where)} RETURN count(p)"
 
     print(cypher)
 
@@ -624,6 +624,81 @@ def neo4j_product():
 
     res = [dict(zip(row[0].keys(), row[0].values())) for row in res]
     return {"count": res_count[0][0], 'time': time, "data": res}
+
+
+@app.route("/api/neo4j/movie")
+def neo4j_movie():
+    where = []
+
+    y = request.args.get("y", 0)
+    if y:
+        where.append(f"p.y='{y}'")
+
+    m = request.args.get("m", 0)
+    if m:
+        where.append(f"p.m='{m}'")
+
+    d = request.args.get("d", 0)
+    if d:
+        where.append(f"p.d='{d}'")
+
+    season = request.args.get("season", 0)
+    if season:
+        months = season2months[season]
+        where.append(f"p.m='{months[0]}' or p.m='{months[1]}' or p.m='{months[2]}'")
+
+    asin = request.args.get("asin", 0)
+    if asin:
+        where.append(f"p.asin='{asin}'")
+
+    weekday = request.args.get("weekday", 0)
+    if weekday:
+        where.append(f"p.weekday='{weekday}'")
+
+    title = request.args.get("title", 0)
+    if title:
+        where.append(f"p.title =~ '.*{title}.*'")
+
+    rating = request.args.get("rating", 0)
+    if rating:
+        where.append(f"p.rating >= '{rating}'")
+
+    director = request.args.get("director", 0)
+    if director:
+        where.append(f"p.director >= '{director}'")
+
+    actor = request.args.get("actor", 0)
+    if actor:
+        where.append(f"a.actor = '{actor}'")
+
+    support_actor = request.args.get("support_actor", 0)
+    if support_actor:
+        where.append(f"s.support_actor = '{support_actor}'")
+
+    genres = request.args.getlist("genre[]")
+    if genres:
+        stat = ' or '.join([f"g.genre = '{g}'" for g in genres])
+        where.append(f"({stat})")
+
+    # elif genre:
+    #     where.append(f"g.genre = '{genre}'")
+
+    skip = request.args.get("skip", 0)
+
+    cypher = f"MATCH (p:Product)-[pd]-(d:Director), (p)-[pa]-(a:Actor), (p)-[ps]-(s:SupportActor), (p)-[pg]-(g:Genre) WHERE {' and '.join(where)} with p"
+
+    cypher += " MATCH (p)-[:BelongTo]->(m:Movie) with distinct(m) MATCH (pp:Product{asin:m.first_asin}) return pp"
+
+    print(cypher)
+
+    start = perf_counter()
+    res = neo4j_query(cypher)
+    time = 1000 * (perf_counter() - start)
+
+    res = [dict(zip(row[0].keys(), row[0].values())) for row in res]
+    return {"count": len(res), 'time': time, "data": res}
+
+
 
 
 if __name__ == "__main__":
