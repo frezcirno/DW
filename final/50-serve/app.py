@@ -540,7 +540,7 @@ def neo4j_product():
     season = request.args.get("season", 0)
     if season:
         months = season2months[season]
-        where.append(f"p.m='{months[0]}' or m='{months[1]}' or m='{months[2]}'")
+        where.append(f"p.m='{months[0]}' or p.m='{months[1]}' or p.m='{months[2]}'")
 
     asin = request.args.get("asin", 0)
     if asin:
