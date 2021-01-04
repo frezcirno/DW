@@ -69,6 +69,21 @@ def hive_query(sql):
 season2months = {"1": [1, 2, 3], "2": [4, 5, 6], "3": [7, 8, 9], "4": [10, 11, 12]}
 
 
+@app.route('/api/combine/movie')
+def combine_movie():
+    mysql = mysql_movie()
+    neo4j = 0 # neo4j_movie()
+    hive = hive_movie()
+
+    return {
+        'data' : mysql['data'],
+        'count': mysql['count'],
+        'mysql': mysql['time'],
+        'neo4j': neo4j['time'],
+        'hive' : hive['time']
+    }
+
+
 @app.route('/api/combine/product')
 def combine_product():
     mysql = mysql_product()
