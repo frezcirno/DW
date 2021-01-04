@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 cnx = mysql.connector.connect(
     **{
-        "host": "katty.top",
+        "host"    : "katty.top",
         "database": "warehouse2",
         "username": "warehouse",
         "password": "warehouse",
@@ -72,15 +72,15 @@ season2months = {"1": [1, 2, 3], "2": [4, 5, 6], "3": [7, 8, 9], "4": [10, 11, 1
 @app.route('/api/combine/movie')
 def combine_movie():
     mysql = mysql_movie()
-    neo4j = 0  # neo4j_movie()
+    neo4j = {"time": 0}  # neo4j_movie()
     hive = hive_movie()
 
     return {
-        'data': mysql['data'],
+        'data' : mysql['data'],
         'count': mysql['count'],
         'mysql': mysql['time'],
         'neo4j': neo4j['time'],
-        'hive': hive['time']
+        'hive' : hive['time']
     }
 
 
@@ -106,11 +106,11 @@ def combine_product():
     hive = hive_product()
 
     return {
-        'data': mysql['data'],
+        'data' : mysql['data'],
         'count': mysql['count'],
         'mysql': mysql['time'],
         'neo4j': neo4j['time'],
-        'hive': hive['time']
+        'hive' : hive['time']
     }
 
 
@@ -219,7 +219,7 @@ def mysql_product():
           " where " + " and ".join(where) + f" limit {offset},100"
 
     count_sql = (
-        "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
+            "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
     )
 
     start = perf_counter()
@@ -327,9 +327,9 @@ def mysql_movie():
     offset = request.args.get("offset", 0)
 
     sql = "select product.movie" + " from " + " natural join ".join(_from) + \
-          " where " + " and ".join(where) + f" limit {offset},100"
+          " where " + " and ".join(where)
 
-    sql = f"select * from product where movie in ({sql})"
+    sql = f"select * from product where movie in ({sql})" + f"limit {offset}, 100"
 
     try:
         start = perf_counter()
@@ -499,16 +499,14 @@ def hive_movie():
     offset = request.args.get("offset", 0)
 
     sql = "select pr.movie from " + fromStr + \
-          " where " + " and ".join(where) + f" limit {offset}, 2"
+          " where " + " and ".join(where)
 
-    sql = f"select * from product where movie in ({sql})"
+    sql = f"select * from product where movie in ({sql})" + f"limit {offset}, 100"
 
     try:
         start = perf_counter()
         res = hive_query(sql)
         time = 1000 * (perf_counter() - start)
-        if len(res) > 1:
-            raise Exception()
     except Exception:
         res = []
         time = 0
