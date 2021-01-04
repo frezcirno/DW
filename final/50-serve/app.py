@@ -2,20 +2,23 @@ from time import perf_counter
 from typing import List
 import ujson as json
 import mysql.connector
-import pyhive
+from pyhive import hive
 from neo4j import GraphDatabase
 from flask import Flask, request
 from flask_cors import CORS
 
 cnx = mysql.connector.connect(
     **{
-        "host": "katty.top",
+        "host"    : "katty.top",
         "database": "warehouse2",
         "username": "warehouse",
         "password": "warehouse",
     }
 )
 cursor = cnx.cursor(buffered=True)
+
+hconn = hive.Connection(host='localhost', port=10000)
+hcursor = hconn.cursor()
 
 driver = GraphDatabase.driver("neo4j://katty.top:7687", auth=("neo4j", "warehouse"))
 session = driver.session()
@@ -46,6 +49,19 @@ def neo4j_query(cypher, param=None):
     return session.read_transaction(query)
 
 
+def hive_query(sql):
+    global hconn
+    try:
+        hcursor.execute(sql)
+    except Exception:
+        hconn = hive.Connection(host='localhost', port=10000)
+    finally:
+        hcursor.execute(sql)
+
+    fields = list(map(lambda x: x[0], hcursor.description))
+    return [dict(zip(fields, row)) for row in hcursor.fetchall()]
+
+
 """
 按照上述条件的组合查询和统计
 """
@@ -60,11 +76,11 @@ def combine_product():
     hive = hive_product()
 
     return {
-        'data': mysql['data'],
+        'data' : mysql['data'],
         'count': mysql['count'],
         'mysql': mysql['time'],
         'neo4j': neo4j['time'],
-        'hive': hive['time']
+        'hive' : hive['time']
     }
 
 
@@ -170,10 +186,10 @@ def mysql_product():
     offset = request.args.get("offset", 0)
 
     sql = "select *" + " from " + " natural join ".join(_from) + \
-        " where " + " and ".join(where) + f" limit {offset},100"
+          " where " + " and ".join(where) + f" limit {offset},100"
 
     count_sql = (
-        "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
+            "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
     )
 
     start = perf_counter()
@@ -281,7 +297,7 @@ def mysql_movie():
     offset = request.args.get("offset", 0)
 
     sql = "select product.movie" + " from " + " natural join ".join(_from) + \
-        " where " + " and ".join(where) + f" limit {offset},100"
+          " where " + " and ".join(where) + f" limit {offset},100"
 
     sql = f"select * from product where movie=({sql})"
 
@@ -290,6 +306,180 @@ def mysql_movie():
         res = mysql_query(sql, param)
         time = 1000 * (perf_counter() - start)
     except mysql.connector.errors.DataError:
+        res = []
+        time = 0
+
+    return {"count": len(res), 'time': time, "data": res}
+
+
+@app.route("/api/hive/sql")
+def hive_any():
+    sql = request.args.get("sql", "")
+    return hive_query(sql)
+
+
+@app.route('/api/hive/product')
+def hive_product():
+    """
+    按照时间进行查询及统计（例如XX年有多少电影，XX年XX月有多少电影，XX年XX季度有多少电影，周二新增多少电影等）
+    按照电影名称进行查询及统计（例如 XX电影共有多少版本等）
+    按照用户评价进行查询及统计（例如用户评分3分以上的电影有哪些，用户评价中有正面评价的电影有哪些等）
+    按照导演进行查询及统计（例如 XX导演共有多少电影等）
+    按照演员进行查询及统计（例如 XX演员主演多少电影，XX演员参演多少电影等）
+    按照电影类别进行查询及统计（例如 Action电影共有多少，Adventure电影共有多少等）
+    """
+    _from = set()
+    where = []
+    fromStr = "product pr"
+
+    y = request.args.get("y", 0)
+    if y:
+        where.append(f"y={y}")
+
+    m = request.args.get("m", 0)
+    if m:
+        where.append(f"m={m}")
+
+    d = request.args.get("d", 0)
+    if d:
+        where.append(f"d={d}")
+
+    season = request.args.get("season", 0)
+    if season:
+        where.append(f"(m={season2months[season][0]} or m={season2months[season][1]} or m={season2months[season][2]})")
+
+    weekday = request.args.get("weekday", 0)
+    if weekday:
+        where.append(f"weekday={weekday}")
+
+    asin = request.args.get("asin", 0)
+    if asin:
+        where.append(f"asin='{asin}'")
+
+    title = request.args.get("title", 0)
+    if title:
+        where.append(f"(title like '%{title}%')")
+
+    rating = request.args.get("rating", 0)
+    if rating:
+        where.append(f"rating >= {rating}")
+
+    director = request.args.get("director", 0)
+    if director:
+        fromStr += " join product_director pd on pr.asin = pd.asin "
+        where.append(f"director = '{director}'")
+
+    actor = request.args.get("actor", 0)
+    if actor:
+        fromStr += " join product_actor pa on pr.asin = pa.asin "
+        where.append(f"actor = '{actor}'")
+
+    support_actor = request.args.get("support_actor", 0)
+    if support_actor:
+        fromStr += " join product_support_actor psa on pr.asin = psa.asin "
+        where.append(f"support_actor = '{support_actor}'")
+
+    genres = request.args.getlist("genre[]")
+    if genres:
+        fromStr += " join product_genres pg on pr.asin = pg.asin "
+        where.append(' or '.join([f"genre = '{g}'" for g in genres]))
+
+    offset = request.args.get("offset", 0)
+
+    sql = "select * from " + fromStr + \
+          " where " + " and ".join(where) + f" limit {offset}, 100"
+
+    count_sql = "select count(1) as num from " + fromStr + " where " + " and ".join(where)
+
+    start = perf_counter()
+    res = hive_query(sql)
+    time = 1000 * (perf_counter() - start)
+
+    count = hive_query(count_sql)
+
+    return {"count": count[0]["num"], 'time': time, "data": res}
+
+
+@app.route('/api/hive/movie')
+def hive_movie():
+    """
+    按照时间进行查询及统计（例如XX年有多少电影，XX年XX月有多少电影，XX年XX季度有多少电影，周二新增多少电影等）
+    按照电影名称进行查询及统计（例如 XX电影共有多少版本等）
+    按照用户评价进行查询及统计（例如用户评分3分以上的电影有哪些，用户评价中有正面评价的电影有哪些等）
+    按照导演进行查询及统计（例如 XX导演共有多少电影等）
+    按照演员进行查询及统计（例如 XX演员主演多少电影，XX演员参演多少电影等）
+    按照电影类别进行查询及统计（例如 Action电影共有多少，Adventure电影共有多少等）
+    """
+    _from = set()
+    where = []
+    fromStr = "product pr"
+
+    y = request.args.get("y", 0)
+    if y:
+        where.append(f"y={y}")
+
+    m = request.args.get("m", 0)
+    if m:
+        where.append(f"m={m}")
+
+    d = request.args.get("d", 0)
+    if d:
+        where.append(f"d={d}")
+
+    season = request.args.get("season", 0)
+    if season:
+        where.append(f"(m={season2months[season][0]} or m={season2months[season][1]} or m={season2months[season][2]})")
+
+    weekday = request.args.get("weekday", 0)
+    if weekday:
+        where.append(f"weekday={weekday}")
+
+    asin = request.args.get("asin", 0)
+    if asin:
+        where.append(f"asin='{asin}'")
+
+    title = request.args.get("title", 0)
+    if title:
+        where.append(f"(title like '%{title}%')")
+
+    rating = request.args.get("rating", 0)
+    if rating:
+        where.append(f"rating >= {rating}")
+
+    director = request.args.get("director", 0)
+    if director:
+        fromStr += " join product_director pd on pr.asin = pd.asin "
+        where.append(f"director = '{director}'")
+
+    actor = request.args.get("actor", 0)
+    if actor:
+        fromStr += " join product_actor pa on pr.asin = pa.asin "
+        where.append(f"actor = '{actor}'")
+
+    support_actor = request.args.get("support_actor", 0)
+    if support_actor:
+        fromStr += " join product_support_actor psa on pr.asin = psa.asin "
+        where.append(f"support_actor = '{support_actor}'")
+
+    genres = request.args.getlist("genre[]")
+    if genres:
+        fromStr += " join product_genres pg on pr.asin = pg.asin "
+        where.append(' or '.join([f"genre = '{g}'" for g in genres]))
+
+    offset = request.args.get("offset", 0)
+
+    sql = "select pr.movie from " + fromStr + \
+          " where " + " and ".join(where) + f" limit {offset}, 2"
+
+    sql = f"select * from product where movie in ({sql})"
+
+    try:
+        start = perf_counter()
+        res = hive_query(sql)
+        time = 1000 * (perf_counter() - start)
+        if len(res) > 1:
+            raise Exception()
+    except Exception:
         res = []
         time = 0
 
@@ -406,10 +596,5 @@ def neo4j_product():
     return {"count": res_count[0][0], 'time': time, "data": res}
 
 
-@app.route('/api/hive/product')
-def hive_product():
-    return {'count': 0, 'data': [], 'time': 0}
-
-
 if __name__ == "__main__":
-    app.run("localhost", "8080", True)
+    app.run("localhost", "8765", True)
