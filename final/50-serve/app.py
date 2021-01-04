@@ -329,7 +329,7 @@ def mysql_movie():
     sql = "select product.movie" + " from " + " natural join ".join(_from) + \
           " where " + " and ".join(where) + f" limit {offset},100"
 
-    sql = f"select * from product where movie=({sql})"
+    sql = f"select * from product where movie in ({sql})"
 
     try:
         start = perf_counter()
