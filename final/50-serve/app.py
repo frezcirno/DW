@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 cnx = mysql.connector.connect(
     **{
-        "host"    : "katty.top",
+        "host": "katty.top",
         "database": "warehouse2",
         "username": "warehouse",
         "password": "warehouse",
@@ -72,16 +72,31 @@ season2months = {"1": [1, 2, 3], "2": [4, 5, 6], "3": [7, 8, 9], "4": [10, 11, 1
 @app.route('/api/combine/movie')
 def combine_movie():
     mysql = mysql_movie()
-    neo4j = 0 # neo4j_movie()
+    neo4j = 0  # neo4j_movie()
     hive = hive_movie()
 
     return {
-        'data' : mysql['data'],
+        'data': mysql['data'],
         'count': mysql['count'],
         'mysql': mysql['time'],
         'neo4j': neo4j['time'],
-        'hive' : hive['time']
+        'hive': hive['time']
     }
+
+
+@app.route('/api/combine/any')
+def combine_any():
+    option = request.args.get("option", "mysql")
+
+    res = []
+    if option == 'mysql':
+        res = mysql_any()
+    elif option == 'neo4j':
+        res = neo4j_any()
+    elif option == 'hive':
+        res = hive_any()
+
+    return {'option': option, 'data': res}
 
 
 @app.route('/api/combine/product')
@@ -91,15 +106,15 @@ def combine_product():
     hive = hive_product()
 
     return {
-        'data' : mysql['data'],
+        'data': mysql['data'],
         'count': mysql['count'],
         'mysql': mysql['time'],
         'neo4j': neo4j['time'],
-        'hive' : hive['time']
+        'hive': hive['time']
     }
 
 
-@app.route("/api/mysql/sql")
+@app.route("/api/mysql/any")
 def mysql_any():
     sql = request.args.get("sql", "")
     return mysql_query(sql)
@@ -204,7 +219,7 @@ def mysql_product():
           " where " + " and ".join(where) + f" limit {offset},100"
 
     count_sql = (
-            "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
+        "select count(1) as num" + " from " + " natural join ".join(_from) + " where " + " and ".join(where)
     )
 
     start = perf_counter()
@@ -327,7 +342,7 @@ def mysql_movie():
     return {"count": len(res), 'time': time, "data": res}
 
 
-@app.route("/api/hive/sql")
+@app.route("/api/hive/any")
 def hive_any():
     sql = request.args.get("sql", "")
     return hive_query(sql)
@@ -530,9 +545,9 @@ def neo4j_relation():
     return {"count": len(res), 'time': time, "data": res}
 
 
-@app.route("/api/neo4j/sql")
+@app.route("/api/neo4j/any")
 def neo4j_any():
-    cypher = request.args.get("cypher", 0)
+    cypher = request.args.get("sql", 0)
     return neo4j_query(cypher)
 
 
