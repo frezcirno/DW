@@ -58,7 +58,7 @@ def hive_query(sql):
     finally:
         hcursor.execute(sql)
 
-    fields = list(map(lambda x: x[0], hcursor.description))
+    fields = list(map(lambda x: x[0].split('.')[-1], hcursor.description))
     return [dict(zip(fields, row)) for row in hcursor.fetchall()]
 
 
